@@ -22,6 +22,7 @@ def setup(timestep=DEFAULT_TIMESTEP, min_delay=DEFAULT_MIN_DELAY, **extra_params
     # Configure simulator
     simulator.state.min_delay = min_delay
     simulator.state.max_delay = max_delay
+    simulator.state.dt = timestep
 
 def end():
     """

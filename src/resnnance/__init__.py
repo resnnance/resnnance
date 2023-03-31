@@ -28,6 +28,8 @@ def end():
     """
     Simulator clean up and exit
     """
+
+    # Remove simulator singleton
     simulator.state = None
 
 

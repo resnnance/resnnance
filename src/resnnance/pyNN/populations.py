@@ -2,8 +2,8 @@ import numpy as np
 
 from pyNN.common import populations
 
-from resnnance import simulator
-from resnnance.recording import Recorder
+from resnnance.pyNN import simulator
+from resnnance.pyNN.recording import Recorder
 
 class ID(int, populations.IDMixin):
     _simulator = simulator

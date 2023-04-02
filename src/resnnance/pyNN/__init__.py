@@ -1,9 +1,9 @@
 from pyNN.common import control
 from pyNN.common.control import DEFAULT_MAX_DELAY, DEFAULT_TIMESTEP, DEFAULT_MIN_DELAY
 
-from resnnance import simulator
-from resnnance.populations import Population, PopulationView, Assembly
-from resnnance.models.cells import *
+from resnnance.pyNN import simulator
+from resnnance.pyNN.populations import Population, PopulationView, Assembly
+from resnnance.pyNN.models.cells import *
 
 # ReSNNance pacakge
 
@@ -20,7 +20,7 @@ def setup(timestep=DEFAULT_TIMESTEP, min_delay=DEFAULT_MIN_DELAY, **extra_params
     control.setup(timestep, min_delay, **extra_params)
 
     # Instantiate simulator as singleton
-    simulator.state = simulator.ReSNNance()
+    simulator.state = simulator.State()
 
     # Configure simulator
     if min_delay == "auto":

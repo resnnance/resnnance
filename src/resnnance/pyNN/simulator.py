@@ -2,7 +2,7 @@ from pyNN.common import control
 from typing import Optional
 import logging
 
-class ReSNNance(control.BaseState):
+class State(control.BaseState):
     """
     ReSNNance PyNN simulator interface
     """
@@ -43,5 +43,5 @@ class ReSNNance(control.BaseState):
 
 
 # ReSNNance simulator singleton object (instantiated in setup())
-# Optional[] is a type hint: state can be a ReSNNance object or None
-state: Optional[ReSNNance] = None
+# Optional[] is a type hint: state can be a State object or None
+state: Optional[State] = None

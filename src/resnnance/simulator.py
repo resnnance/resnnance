@@ -1,5 +1,4 @@
 from pyNN.common.control import BaseState
-
 from typing import Optional
 import logging
 

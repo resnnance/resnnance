@@ -1,6 +1,9 @@
 from pyNN.common import control
 from pyNN.common.control import DEFAULT_MAX_DELAY, DEFAULT_TIMESTEP, DEFAULT_MIN_DELAY
-from resnnance import simulator, populations
+
+from resnnance import simulator
+from resnnance.populations import Population, PopulationView, Assembly
+from resnnance.models.cells import *
 
 # ReSNNance pacakge
 
@@ -27,6 +30,7 @@ def setup(timestep=DEFAULT_TIMESTEP, min_delay=DEFAULT_MIN_DELAY, **extra_params
     simulator.state.min_delay = min_delay
     simulator.state.max_delay = max_delay
     simulator.state.dt = timestep
+
 
 def end():
     """

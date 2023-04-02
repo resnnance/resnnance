@@ -1,8 +1,8 @@
-from pyNN.common.control import BaseState
+from pyNN.common import control
 from typing import Optional
 import logging
 
-class ReSNNance(BaseState):
+class ReSNNance(control.BaseState):
     """
     ReSNNance PyNN simulator interface
     """
@@ -22,15 +22,13 @@ class ReSNNance(BaseState):
         self.mpi_rank = 0           # MPI rank - meaningless on ReSNNance, always 0 (head node)
         self.recorders = set([])    # Empty set of recorders
 
-
     def reset(self):
         """
-        Reset the simulator
+        Resets the simulator
         """
 
         # Reset simulator time
         self.t = 0
-
 
     def run_until(self, tstop):
         """

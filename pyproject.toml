@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "resnnance"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
     { name = "Samuel López Asunción", email = "samuel.lopez.asuncion@upm.es"},
 ]
@@ -12,13 +12,14 @@ description = "An FPGA hardware accelerator generator for spiking neural network
 readme = "README.md"
 requires-python = ">=3.7"
 dependencies = [
-    "numpy", "pyNN"
+    "numpy", "jinja2", "pyNN"
 ]
 classifiers = [
+    "Development Status :: 1 - Planning",
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
 
 [project.urls]
 "Homepage" = "https://repo-lsi.die.upm.es/slopez/resnnance"
-"Bug Tracker" = "https://github.com/pypa/sampleproject/issues"
+"Bug Tracker" = "https://repo-lsi.die.upm.es/slopez/resnnance/issues"

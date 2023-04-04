@@ -1,3 +1,3 @@
 ### ReSNNance
 
-SNN hardware accelerator generator. Can be used as a PyNN backend.
+An FPGA hardware accelerator generator for spiking neural networks + PyNN frontend

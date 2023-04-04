@@ -1,6 +1,7 @@
 import jinja2
 import logging
 
+
 class ReSNNance(object):
 
     def __init__(self):
@@ -20,8 +21,8 @@ class ReSNNance(object):
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
 
-        # Log ReSNNance environment creation
-        self.logger.info("Created new ReSNNance environment")
+        # Log ReSNNance core creation
+        self.logger.info("Created new ReSNNance core")
 
 
     def create_snap(self, num):

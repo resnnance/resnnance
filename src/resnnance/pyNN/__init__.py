@@ -5,7 +5,6 @@ from resnnance.pyNN import simulator
 from resnnance.pyNN.populations import Population, PopulationView, Assembly
 from resnnance.pyNN.models.cells import *
 
-# ReSNNance pacakge
 
 def setup(timestep=DEFAULT_TIMESTEP, min_delay=DEFAULT_MIN_DELAY, **extra_params):
     """

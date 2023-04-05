@@ -41,12 +41,12 @@ class State(control.BaseState):
         # PyNN common attributes
         self.min_delay = 0              # Minimum allowed synaptic delay (ms)
         self.max_delay = 0              # Maximum allowed synaptic delay (ms)
+        self.dt = 0.1                   # Integration time step (ms)
         self.num_processes = 1          # MPI processes - meaningless on ReSNNance, always 1
         self.mpi_rank = 0               # MPI rank - meaningless on ReSNNance, always 0 (head node)
-        self.recorders = set([])        # Empty set of recorders
-        self.t = 0                      # Current time (ms)
+
+        # Clear recorders and reset
         self.clear()
-        self.dt = 0                     # Integration time step (ms)
 
         # ReSNNance
         self.core = core.ReSNNance()    # Core generator/simulator

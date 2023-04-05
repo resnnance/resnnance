@@ -19,7 +19,6 @@ def setup(timestep=DEFAULT_TIMESTEP, min_delay=DEFAULT_MIN_DELAY, **extra_params
     simulator.state = simulator.State()
 
     # Configure simulator
-    simulator.state.clear()
     if min_delay == "auto":
         min_delay = 0
     if max_delay == "auto":

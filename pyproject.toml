@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "resnnance"
-version = "0.0.4"
+version = "0.0.5"
 authors = [
     { name = "Samuel López Asunción", email = "samuel.lopez.asuncion@upm.es"},
 ]
@@ -12,7 +12,7 @@ description = "An FPGA hardware accelerator generator for spiking neural network
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "numpy", "jinja2", "networkx", "pyNN"
+    "numpy", "matplotlib", "jinja2", "networkx", "pyNN"
 ]
 classifiers = [
     "Development Status :: 1 - Planning",

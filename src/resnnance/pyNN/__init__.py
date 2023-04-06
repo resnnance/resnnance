@@ -1,5 +1,5 @@
 from resnnance.pyNN.populations import Population, PopulationView, Assembly
-from resnnance.pyNN.projections import Projection, Connection
+from resnnance.pyNN.projections import Projection
 from resnnance.pyNN.models.cells import *
 from resnnance.pyNN.models.synapses import *
 from resnnance.pyNN.control import (
@@ -16,3 +16,10 @@ from resnnance.pyNN.control import (
     num_processes,
     rank,
 )
+
+from pyNN.connectors import AllToAllConnector, OneToOneConnector, \
+    FixedProbabilityConnector, DistanceDependentProbabilityConnector, \
+    DisplacementDependentProbabilityConnector, \
+    IndexBasedProbabilityConnector, FromListConnector, FromFileConnector, \
+    FixedNumberPreConnector, FixedNumberPostConnector, SmallWorldConnector, \
+    CSAConnector, CloneConnector, ArrayConnector, FixedTotalNumberConnector

@@ -50,6 +50,7 @@ class ReSNNance(object):
         node_sizes = [ndata['population'].size * 30 for node, ndata in self.network.nodes(data=True)]
         nx.draw(self.network, pos, with_labels=True, node_size=node_sizes)
 
+        # Get connector name
+        edge_labels = dict([((u, v), d['projection']._connector.__class__.__name__) for u, v, d in self.network.edges(data=True)])
         # Draw edge labels
-        edge_labels = dict([((u, v), d['type']) for u, v, d in self.network.edges(data=True)])
         nx.draw_networkx_edge_labels(self.network, pos, edge_labels=edge_labels)

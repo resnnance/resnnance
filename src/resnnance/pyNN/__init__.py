@@ -1,6 +1,7 @@
 from resnnance.pyNN.populations import Population, PopulationView, Assembly
-from resnnance.pyNN.projections import Projection
+from resnnance.pyNN.projections import Projection, Connection
 from resnnance.pyNN.models.cells import *
+from resnnance.pyNN.models.synapses import *
 from resnnance.pyNN.control import (
     setup,
     end,

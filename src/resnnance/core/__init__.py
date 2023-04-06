@@ -1,6 +1,6 @@
 import jinja2
 import logging
-
+import networkx as nx
 
 class ReSNNance(object):
 
@@ -24,6 +24,8 @@ class ReSNNance(object):
         # Log ReSNNance core creation
         self.logger.info("Created new ReSNNance core")
 
+        # Network data
+        self.network = nx.DiGraph()
 
     def create_snap(self, num):
         # Create template from string
@@ -41,4 +43,12 @@ class ReSNNance(object):
                 message.write(content)
                 self.logger.info(f"Wrote {filename}")
 
+    def draw_network(self):
+        pos = nx.spring_layout(self.network)
 
+        # Get edge labels
+        edge_labels = dict([((u,v,), d['type']) for u,v,d in self.network.edges(data=True)])
+
+        # Draw
+        nx.draw(self.network, pos, with_labels=True)
+        nx.draw_networkx_edge_labels(self.network, pos, edge_labels=edge_labels)

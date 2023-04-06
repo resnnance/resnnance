@@ -38,6 +38,9 @@ class Population(populations.Population):
             id.parent = self
         simulator.state.id_counter += self.size
 
+        # ReSNNance population
+        simulator.state.core.network.add_node(self.label)
+
     def _set_initial_value_array(self, variable, initial_values):
         pass
 

@@ -12,7 +12,7 @@ description = "An FPGA hardware accelerator generator for spiking neural network
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "numpy", "jinja2", "pyNN"
+    "numpy", "jinja2", "networkx", "pyNN"
 ]
 classifiers = [
     "Development Status :: 1 - Planning",

@@ -1,8 +1,8 @@
-from resnnance.pyNN.populations import Population, PopulationView, Assembly
-from resnnance.pyNN.projections import Projection
-from resnnance.pyNN.models.cells import *
-from resnnance.pyNN.models.synapses import *
-from resnnance.pyNN.control import (
+from .populations import Population, PopulationView, Assembly
+from .projections import Projection
+from .models.cells import *
+from .models.synapses import *
+from .control import (
     setup,
     end,
     run,
@@ -17,8 +17,8 @@ from resnnance.pyNN.control import (
     rank,
 )
 
-from pyNN.connectors import AllToAllConnector, OneToOneConnector, \
-    FixedProbabilityConnector, DistanceDependentProbabilityConnector, \
+from pyNN.connectors import AllToAllConnector, OneToOneConnector, FixedProbabilityConnector, \
+    DistanceDependentProbabilityConnector, \
     DisplacementDependentProbabilityConnector, \
     IndexBasedProbabilityConnector, FromListConnector, FromFileConnector, \
     FixedNumberPreConnector, FixedNumberPostConnector, SmallWorldConnector, \

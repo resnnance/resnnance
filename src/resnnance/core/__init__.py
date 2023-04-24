@@ -34,7 +34,7 @@ class ReSNNance(object):
         # Render template
         for i in range(num):
             # Set template parameters and render content
-            params = {'entity_name': f"snap_{i}", 'arch_name': 'arch'}
+            params = {'entity_name': f"snap_{i}"}
             content = template.render(**params)
 
             # Write to files

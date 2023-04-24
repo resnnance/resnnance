@@ -18,7 +18,7 @@ port (
 {% endif %}
 end {{ entity_name }};
 
-architecture {{ arch_name }} of {{ entity_name }} is
+architecture arch of {{ entity_name }} is
 begin
     {{ arch_description }}
-end {{ arch_name }};
+end arch;

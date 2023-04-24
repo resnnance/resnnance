@@ -5,7 +5,7 @@ from resnnance.pyNN import simulator
 
 def setup(timestep=DEFAULT_TIMESTEP, min_delay=DEFAULT_MIN_DELAY, **extra_params):
     """
-    Initial configuration of the ReSNNance simulator (singleton model: there is only
+    Initial configuration of the Resnnance simulator (singleton model: there is only
     one instance of the simulator, defined here)
     """
 

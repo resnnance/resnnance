@@ -39,7 +39,7 @@ class Projection(projections.Projection):
         self.connections = []
         connector.connect(self)
 
-        # ReSNNance projection
+        # Resnnance projection
         simulator.state.core.network.add_edge(presynaptic_population.label,
                                               postsynaptic_population.label,
                                               projection=self)

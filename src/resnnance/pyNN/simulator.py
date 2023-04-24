@@ -16,7 +16,7 @@ class ID(int, populations.IDMixin):
 
 class State(control.BaseState):
     """
-    ReSNNance PyNN simulator interface
+    Resnnance PyNN simulator interface
     """
 
     def __init__(self):
@@ -35,21 +35,21 @@ class State(control.BaseState):
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
 
-        # Log ReSNNance environment creation
-        self.logger.info("Created new ReSNNance pyNN environment")
+        # Log Resnnance environment creation
+        self.logger.info("Created new Resnnance pyNN environment")
 
         # PyNN common attributes
         self.min_delay = 0              # Minimum allowed synaptic delay (ms)
         self.max_delay = 0              # Maximum allowed synaptic delay (ms)
         self.dt = 0.1                   # Integration time step (ms)
-        self.num_processes = 1          # MPI processes - meaningless on ReSNNance, always 1
-        self.mpi_rank = 0               # MPI rank - meaningless on ReSNNance, always 0 (head node)
+        self.num_processes = 1          # MPI processes - meaningless on Resnnance, always 1
+        self.mpi_rank = 0               # MPI rank - meaningless on Resnnance, always 0 (head node)
 
         # Clear recorders and reset
         self.clear()
 
-        # ReSNNance
-        self.core = core.ReSNNance()    # Core generator/simulator
+        # Resnnance
+        self.core = core.Resnnance()    # Core generator/simulator
 
     def run(self, simtime):
         self.t += simtime
@@ -75,6 +75,6 @@ class State(control.BaseState):
         self.segment_counter += 1
 
 
-# ReSNNance simulator singleton object (instantiated in setup())
+# Resnnance simulator singleton object (instantiated in setup())
 # Optional[] is a type hint: state can be a State object or None
 state: Optional[State] = None

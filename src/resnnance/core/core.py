@@ -7,7 +7,7 @@ class Resnnance(object):
 
     def __init__(self):
         # Create templating environment
-        self.env = jinja2.Environment(loader=jinja2.PackageLoader("resnnance.core"))
+        self.env = jinja2.Environment(loader=jinja2.PackageLoader("resnnance.core", "templates"))
 
         # Create log
         self.logger = logging.getLogger("resnnance.core")

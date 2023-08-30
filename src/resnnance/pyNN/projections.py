@@ -5,6 +5,7 @@ from pyNN.core import ezip
 from pyNN.space import Space
 
 from resnnance.pyNN import simulator
+from resnnance.pyNN.models.synapses import StaticSynapse
 
 class Connection(projections.Connection):
     """
@@ -27,9 +28,10 @@ class Connection(projections.Connection):
 class Projection(projections.Projection):
     __doc__ = projections.Projection.__doc__
     _simulator = simulator
+    _static_synapse_class = StaticSynapse
 
     def __init__(self, presynaptic_population, postsynaptic_population,
-                 connector, synapse_type, source=None, receptor_type=None,
+                 connector, synapse_type=None, source=None, receptor_type=None,
                  space=Space(), label=None):
         projections.Projection.__init__(self, presynaptic_population, postsynaptic_population,
                                    connector, synapse_type, source, receptor_type,

@@ -6,6 +6,8 @@ from pyNN.common import populations
 
 import resnnance.core as core
 
+name = 'resnnance'
+
 class ID(int, populations.IDMixin):
 
     def __init__(self, n):

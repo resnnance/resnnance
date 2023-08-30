@@ -2,6 +2,7 @@ import numpy as np
 
 from pyNN.common import populations
 from pyNN.standardmodels import StandardCellType
+from pyNN.parameters import ArrayParameter, Sequence, ParameterSpace, simplify, LazyArray
 
 from resnnance.pyNN import simulator
 from resnnance.pyNN.recording import Recorder

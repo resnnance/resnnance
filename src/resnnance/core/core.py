@@ -31,17 +31,17 @@ class Resnnance(object):
         # Network data
         self.network = nx.DiGraph()
 
-    def _create_snaps(self, num):
+    def _create_snaps(self, num, path):
         # Create template from string
         template = self.env.get_template("hw/rsnn_snap.vhd")
 
         # Set up build directory
-        if not os.path.exists(self.build_path):
-            os.makedirs(self.build_path)
+        if not os.path.exists(path):
+            os.makedirs(path)
 
         # Set up snaps directory
-        if not os.path.exists(os.path.join(self.build_path, "snaps")):
-            os.makedirs(os.path.join(self.build_path, "snaps"))
+        if not os.path.exists(os.path.join(path, "snaps")):
+            os.makedirs(os.path.join(path, "snaps"))
 
         # Render template
         for i in range(num):
@@ -51,12 +51,12 @@ class Resnnance(object):
 
             # Write to files
             filename = f"rsnn_snap_{i}.vhd"
-            filepath = os.path.join(self.build_path, "snaps", filename)
+            filepath = os.path.join(path, "snaps", filename)
             with open(filepath, mode="w", encoding="utf-8") as message:
                 message.write(content)
                 self.logger.info(f"Created rsnn_snap_{i}")
 
-    def create_rsnn_engine(self):
+    def create_rsnn_engine(self, path):
         # Fetch RISC-V templates
         templates = {
             'bus' : self.env.get_template("hw/sbus.vhd"),
@@ -80,8 +80,9 @@ class Resnnance(object):
         }
 
         # Set up build directory
-        if not os.path.exists(self.build_path):
-            os.makedirs(self.build_path)
+        build = os.path.join(path, self.build_path)
+        if not os.path.exists(build):
+            os.makedirs(build)
 
         # Render and write to files
         for name, template in templates.items():
@@ -90,7 +91,7 @@ class Resnnance(object):
 
             # Generate file path
             filename = f"{params[name]['entity_name']}.vhd"
-            filepath = os.path.join(self.build_path, filename)
+            filepath = os.path.join(build, filename)
 
             # Write to file
             with open(filepath, mode="w", encoding="utf-8") as module:
@@ -98,12 +99,14 @@ class Resnnance(object):
                 self.logger.info(f"Created {params[name]['entity_name']}")
 
         # Create snaps
-        self._create_snaps(4)
+        self._create_snaps(4, build)
 
         # Log slave creation
         self.logger.info(f"Created RISC-V Resnnance engine")
 
-    def draw_network(self):
+    def draw_network(self, path=None):
+        import matplotlib.pyplot as plt
+
         pos = nx.spring_layout(self.network)
 
         # Draw
@@ -114,3 +117,9 @@ class Resnnance(object):
         edge_labels = dict([((u, v), d['projection']._connector.__class__.__name__) for u, v, d in self.network.edges(data=True)])
         # Draw edge labels
         nx.draw_networkx_edge_labels(self.network, pos, edge_labels=edge_labels)
+
+        # Save
+        if path != None:
+            plt.savefig(os.path.join(path, 'SNN.png'));
+        else:
+            plt.show();

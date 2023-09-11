@@ -107,19 +107,28 @@ class Resnnance(object):
     def draw_network(self, path=None):
         import matplotlib.pyplot as plt
 
-        pos = nx.spring_layout(self.network)
+        # Sizes and positions
+        posx = [i for i in range(self.network.number_of_nodes())]
+        pos  = {node: [posx[i], 0] for i, node in enumerate(self.network.nodes)}
+        node_sizes = [ndata['population'].size for node, ndata in self.network.nodes(data=True)]
 
         # Draw
-        node_sizes = [ndata['population'].size * 30 for node, ndata in self.network.nodes(data=True)]
-        nx.draw(self.network, pos, with_labels=True, node_size=node_sizes)
+        fig = plt.figure(1, figsize=(self.network.number_of_nodes(), 7)) #, dpi=72)
+        nx.draw(self.network, pos, node_size=node_sizes)
 
-        # Get connector name
-        edge_labels = dict([((u, v), d['projection']._connector.__class__.__name__) for u, v, d in self.network.edges(data=True)])
-        # Draw edge labels
-        nx.draw_networkx_edge_labels(self.network, pos, edge_labels=edge_labels)
+        # Draw labels
+        labels  = {node: ndata['population'].size for node, ndata in self.network.nodes(data=True)}
+        for node, ndata in self.network.nodes(data=True):
+            plt.text(pos[node][0], 0.0005, s=ndata['population'].size, horizontalalignment='center')
+            plt.text(pos[node][0], -0.0005, s=ndata['population'].label, horizontalalignment='center', verticalalignment='top', rotation='vertical')
+
+        # # Get connector name
+        # edge_labels = dict([((u, v), d['projection']._connector.__class__.__name__) for u, v, d in self.network.edges(data=True)])
+        # # Draw edge labels
+        # nx.draw_networkx_edge_labels(self.network, pos, edge_labels=edge_labels)
 
         # Save
         if path != None:
-            plt.savefig(os.path.join(path, 'SNN.png'));
+            plt.savefig(os.path.join(path, 'SNN.png'), bbox_inches='tight');
         else:
             plt.show();

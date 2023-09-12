@@ -29,7 +29,9 @@ class Resnnance(object):
         self.build_path = "build"
 
         # Network data
-        self.network = nx.DiGraph()
+        self.layers = []
+        self.connections = []
+        self.model = None
 
     def _create_snaps(self, num, path):
         # Create template from string
@@ -57,6 +59,10 @@ class Resnnance(object):
                 self.logger.info(f"Created rsnn_snap_{i}")
 
     def create_rsnn_engine(self, path):
+        # Check model
+        if self.model == None:
+            return
+
         # Fetch RISC-V templates
         templates = {
             'bus' : self.env.get_template("hw/sbus.vhd"),
@@ -104,22 +110,58 @@ class Resnnance(object):
         # Log slave creation
         self.logger.info(f"Created RISC-V Resnnance engine")
 
+    def compile(self):
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        self.logger.info(f"Compiling SNN...")
+
+        # Initialize model
+        self.model = {layer.label: {'layer': layer} for layer in self.layers}
+
+        for layer in self.layers:
+            # Get all projections pointing to this layer
+            inprojections = [conn for conn in self.connections if conn.post == layer]
+
+            # Read incoming projections
+            for inproj in inprojections:
+                # Create weight matrix for incoming projection
+                # TODO - Add support for multiple incoming projections
+                self.model[layer.label]['weights'] = np.zeros(inproj.shape)
+
+                # Fill matrix with weights
+                for conn in inproj.connections:
+                    # Map projection connection weights into matrix (M, N): M = # synapses/pre neurons, N = # post neurons
+                    self.model[layer.label]['weights'][conn.presynaptic_index, conn.postsynaptic_index] = conn.weight
+
+                # plt.imshow(self.model[layer.label]['weights'], interpolation='none')
+                # plt.show()
+
+        # Create engine from model
+        self.create_rsnn_engine();
+        self.logger.info(f"Compiling SNN - OK")
+
     def draw_network(self, path=None):
         import matplotlib.pyplot as plt
 
+        network = nx.DiGraph()
+
+        [network.add_node(layer.label, population=layer) for layer in self.layers]
+        [network.add_edge(conn.pre.label, conn.post.label, projection=conn) for conn in self.connections]
+
         # Sizes and positions
-        posx = [i for i in range(self.network.number_of_nodes())]
-        pos  = {node: [posx[i], 0] for i, node in enumerate(self.network.nodes)}
-        node_sizes = [ndata['population'].size for node, ndata in self.network.nodes(data=True)]
+        posx = [i for i in range(network.number_of_nodes())]
+        pos  = {node: [posx[i], 0] for i, node in enumerate(network.nodes)}
+        node_sizes = [ndata['population'].size for node, ndata in network.nodes(data=True)]
 
         # Draw
-        fig = plt.figure(1, figsize=(self.network.number_of_nodes(), 7)) #, dpi=72)
-        nx.draw(self.network, pos, node_size=node_sizes)
+        fig = plt.figure(1, figsize=(network.number_of_nodes(), 7)) #, dpi=72)
+        nx.draw(network, pos, node_size=node_sizes)
 
         # Draw labels
-        labels  = {node: ndata['population'].size for node, ndata in self.network.nodes(data=True)}
-        for node, ndata in self.network.nodes(data=True):
-            plt.text(pos[node][0], 0.0005, s=ndata['population'].size, horizontalalignment='center')
+        labels  = {node: ndata['population'].size for node, ndata in network.nodes(data=True)}
+        for node, ndata in network.nodes(data=True):
+            plt.text(pos[node][0],  0.0005, s=ndata['population'].size,  horizontalalignment='center')
             plt.text(pos[node][0], -0.0005, s=ndata['population'].label, horizontalalignment='center', verticalalignment='top', rotation='vertical')
 
         # # Get connector name
@@ -129,6 +171,6 @@ class Resnnance(object):
 
         # Save
         if path != None:
-            plt.savefig(os.path.join(path, 'SNN.png'), bbox_inches='tight');
+            plt.savefig(os.path.join(path, 'SNN.png'))
         else:
-            plt.show();
+            plt.show()

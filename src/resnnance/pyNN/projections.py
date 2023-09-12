@@ -42,9 +42,7 @@ class Projection(projections.Projection):
         connector.connect(self)
 
         # Resnnance projection
-        simulator.state.core.network.add_edge(presynaptic_population.label,
-                                              postsynaptic_population.label,
-                                              projection=self)
+        simulator.state.core.connections.append(self)
 
     def __len__(self):
         return len(self.connections)

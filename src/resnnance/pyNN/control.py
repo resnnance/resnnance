@@ -27,6 +27,11 @@ def setup(timestep=DEFAULT_TIMESTEP, min_delay=DEFAULT_MIN_DELAY, **extra_params
     simulator.state.max_delay = max_delay
     simulator.state.dt = timestep
 
+def compile():
+    """
+    Simulator network compilation
+    """
+    simulator.state.compile()
 
 def end():
     """

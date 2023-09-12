@@ -5,6 +5,7 @@ from .models.synapses import *
 from .control import (
     setup,
     end,
+    compile,
     run,
     run_until,
     run_for,

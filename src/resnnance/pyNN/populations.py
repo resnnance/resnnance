@@ -40,7 +40,7 @@ class Population(populations.Population):
         simulator.state.id_counter += self.size
 
         # Resnnance population
-        simulator.state.core.network.add_node(self.label, population=self)
+        simulator.state.core.layers.append(self)
 
     def _set_initial_value_array(self, variable, initial_values):
         pass

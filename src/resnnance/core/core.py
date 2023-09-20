@@ -134,11 +134,11 @@ class Resnnance(object):
                     # Map projection connection weights into matrix (M, N): M = # synapses/pre neurons, N = # post neurons
                     self.model[layer.label]['weights'][conn.presynaptic_index, conn.postsynaptic_index] = conn.weight
 
-                # plt.imshow(self.model[layer.label]['weights'], interpolation='none')
-                # plt.show()
+                plt.imshow(self.model[layer.label]['weights'], interpolation='none')
+                plt.show()
 
         # Create engine from model
-        self.create_rsnn_engine();
+        #self.create_rsnn_engine();
         self.logger.info(f"Compiling SNN - OK")
 
     def draw_network(self, path=None):

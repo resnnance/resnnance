@@ -1,12 +1,11 @@
 from .populations import Population, PopulationView, Assembly
 from .projections import Projection
-from .connectors import ConvConnector
+from .connectors import ConvConnector, PoolConnector
 from .models.cells import *
 from .models.synapses import *
 from .control import (
     setup,
     end,
-    compile,
     run,
     run_until,
     run_for,

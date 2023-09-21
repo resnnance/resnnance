@@ -53,10 +53,6 @@ class State(control.BaseState):
         # Resnnance
         self.core = core.Resnnance()    # Core generator/simulator
 
-
-    def compile(self):
-        self.core.compile()
-
     def run(self, simtime):
         self.t += simtime
         self.running = True

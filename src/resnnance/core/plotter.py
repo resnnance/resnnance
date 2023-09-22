@@ -8,7 +8,7 @@ class ResnnancePlotter(object):
 
     def __init__(self):
         # Log
-        self.logger = resnnance_logger("resnnance.plotter")
+        self.logger = resnnance_logger("plotter")
 
     def plot(self, model, path=None):
         self.logger.info("Plotting Resnnance model...")

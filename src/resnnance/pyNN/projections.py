@@ -42,7 +42,7 @@ class Projection(projections.Projection):
         connector.connect(self)
 
         # Resnnance projection
-        simulator.state.core.connections.append(self)
+        simulator.state._add_projection(self)
 
     def __len__(self):
         return len(self.connections)

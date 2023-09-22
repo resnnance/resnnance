@@ -4,7 +4,7 @@ from typing import Optional
 from pyNN.common import control
 from pyNN.common import populations
 
-import resnnance.core as core
+from resnnance.core import Resnnance
 
 name = 'resnnance'
 
@@ -51,7 +51,21 @@ class State(control.BaseState):
         self.clear()
 
         # Resnnance
-        self.core = core.Resnnance()    # Core generator/simulator
+        self.populations = []
+        self.projections = []
+        self.model = Resnnance()        # SNN model
+
+    def _add_population(self, population):
+        self.populations.append(population)
+        # TODO create Resnnance layer
+        layer = population
+        self.model.add_layer(layer)
+
+    def _add_projection(self, projection):
+        self.projections.append(projection)
+        # TODO connect Resnnance layer
+        connection = projection
+        self.model.add_connection(connection)
 
     def run(self, simtime):
         self.t += simtime

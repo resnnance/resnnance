@@ -8,7 +8,7 @@ class ResnnanceCompiler(object):
 
     def __init__(self, build_path=None):
         # Log
-        self.logger = resnnance_logger("resnnance.compiler")
+        self.logger = resnnance_logger("compiler")
 
         # Create templating environment
         self.env = jinja2.Environment(loader=jinja2.PackageLoader("resnnance.core", "templates"))
@@ -17,7 +17,7 @@ class ResnnanceCompiler(object):
         if not build_path == None:
             self.build_path = build_path
 
-    def _create_snaps(self, num):
+    def __create_snaps(self, num):
         # Create template from string
         template = self.env.get_template("hw/rsnn_snap.vhd")
 
@@ -42,7 +42,7 @@ class ResnnanceCompiler(object):
                 message.write(content)
                 self.logger.info(f"Created rsnn_snap_{i}")
 
-    def _create_rsnn_engine(self, model):
+    def __create_rsnn_engine(self, model):
         # Fetch RISC-V templates
         templates = {
             'bus' : self.env.get_template("hw/sbus.vhd"),
@@ -84,16 +84,17 @@ class ResnnanceCompiler(object):
                 self.logger.info(f"Created {params[name]['entity_name']}")
 
         # Create snaps
-        self._create_snaps(4)
+        self.__create_snaps(4)
 
         # Log slave creation
         self.logger.info(f"Created RISC-V Resnnance engine")
 
-    def set_build_path(self, path):
-        self.build_path = path
-
-    def compile(self, model):
+    def compile(self, model, path=None):
         self.logger.info("Compiling Resnnance model...")
+
+        # Set build path
+        if not path == None:
+            self.build_path = path
 
         # Initialize model
         self.map = {layer.label: {'layer': layer} for layer in model.layers}
@@ -118,6 +119,6 @@ class ResnnanceCompiler(object):
                 #plt.show()
 
         # Create engine from model
-        self._create_rsnn_engine(model)
+        self.__create_rsnn_engine(model)
         
         self.logger.info("Compiling Resnnance model - OK")

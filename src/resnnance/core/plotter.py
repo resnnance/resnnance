@@ -11,6 +11,10 @@ class ResnnancePlotter(object):
         self.logger = resnnance_logger("plotter")
 
     def plot(self, model, path=None):
+        if not model.layers:
+            self.logger.warning("Empty Resnnance model")
+            return
+
         self.logger.info("Plotting Resnnance model...")
 
         network = nx.DiGraph()

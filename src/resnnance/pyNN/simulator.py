@@ -4,7 +4,7 @@ from typing import Optional
 from pyNN.common import control
 from pyNN.common import populations
 
-from resnnance.core import Resnnance
+from resnnance.pyNN.builder import Builder
 
 name = 'resnnance'
 
@@ -53,19 +53,7 @@ class State(control.BaseState):
         # Resnnance
         self.populations = []
         self.projections = []
-        self.model = Resnnance()        # SNN model
-
-    def _add_population(self, population):
-        self.populations.append(population)
-        # TODO create Resnnance layer
-        layer = population
-        self.model.add_layer(layer)
-
-    def _add_projection(self, projection):
-        self.projections.append(projection)
-        # TODO connect Resnnance layer
-        connection = projection
-        self.model.add_connection(connection)
+        self.builder = Builder(self)
 
     def run(self, simtime):
         self.t += simtime
@@ -89,7 +77,6 @@ class State(control.BaseState):
         self.t = 0
         self.t_start = 0
         self.segment_counter += 1
-
 
 # Resnnance simulator singleton object (instantiated in setup())
 # Optional[] is a type hint: state can be a State object or None

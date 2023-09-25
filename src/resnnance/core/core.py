@@ -16,7 +16,7 @@ class Resnnance(object):
 
         # Model data
         self.layers = []
-        self.connections = []
+        self.connections = []   # deprecated
         self.logger.info("Created empty Resnnance model")
 
     def add_layer(self, layer):

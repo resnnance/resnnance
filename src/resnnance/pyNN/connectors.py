@@ -1,6 +1,24 @@
 from pyNN.connectors import Connector
 
-class ConvConnector(Connector):
+class MovingConnector(Connector):
+    """
+    Abstract base class for Connectors based on 
+    moving kernels, pooling or CNN related layers
+    """
+    def connect(self, projection):
+        """
+        Copies connector info into projection -
+        Does not generate connections since this is not
+        a "physical" connector
+        """
+        projection.info = self.info
+
+    def flatten(self):
+        # TODO method that returns a dense connector (FromListConnector)
+        # with the same functionality
+        raise NotImplementedError
+
+class ConvConnector(MovingConnector):
     """
     Make connections for a convolutional layer
 
@@ -14,20 +32,11 @@ class ConvConnector(Connector):
             if True, display a progress bar on the terminal.
     """
 
-    def __init__(self, kernel_data, safe=True, callback=None):
+    def __init__(self, info, safe=True, callback=None):
         super().__init__(safe=safe, callback=callback)
-        self.kernel = kernel_data
+        self.info = info
 
-    def connect(self, projection):
-        """
-        Connect-up a Projection
-        """
-
-        # Get kernel data and make connections
-        print(f'ConvConnector for {projection}')
-        print(self.kernel)
-
-class PoolConnector(Connector):
+class PoolConnector(MovingConnector):
     """
     Make connections for a convolutional layer
 
@@ -41,15 +50,6 @@ class PoolConnector(Connector):
             if True, display a progress bar on the terminal.
     """
 
-    def __init__(self, pool_data, safe=True, callback=None):
+    def __init__(self, info, safe=True, callback=None):
         super().__init__(safe=safe, callback=callback)
-        self.pool = pool_data
-
-    def connect(self, projection):
-        """
-        Connect-up a Projection
-        """
-
-        # Get kernel data and make connections
-        print(f'PoolConnector for {projection}')
-        print(self.pool)
+        self.info = info

@@ -3,10 +3,11 @@ from itertools import repeat
 from pyNN.common import projections
 from pyNN.core import ezip
 from pyNN.space import Space
+from pyNN.connectors import FromListConnector
 
 from resnnance.pyNN import simulator
 from resnnance.pyNN.models.synapses import StaticSynapse
-
+from resnnance.pyNN.connectors import MovingConnector
 class Connection(projections.Connection):
     """
     Store an individual plastic connection and information about it. Provide an
@@ -39,10 +40,11 @@ class Projection(projections.Projection):
 
         #  Create connections
         self.connections = []
+        self.info = {}
         connector.connect(self)
 
         # Resnnance projection
-        simulator.state._add_projection(self)
+        simulator.state.projections.append(self)
 
     def __len__(self):
         return len(self.connections)
@@ -60,3 +62,14 @@ class Projection(projections.Projection):
             self.connections.append(
                 Connection(pre_idx, postsynaptic_index, **other_attributes)
             )
+
+    # def get_info(self):
+    #     """
+    #     Returns the relevant post-synaptic connection information
+    #     """
+    #     info = {}
+
+    #     if isinstance(self._connector, MovingConnector):
+    #         info = self.info
+    #     elif isinstance(self._connector, FromListConnector):
+    #         info = 

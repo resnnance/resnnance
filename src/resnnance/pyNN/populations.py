@@ -40,7 +40,7 @@ class Population(populations.Population):
         simulator.state.id_counter += self.size
 
         # Resnnance population
-        simulator.state._add_population(self)
+        simulator.state.populations.append(self)
 
     def _set_initial_value_array(self, variable, initial_values):
         pass

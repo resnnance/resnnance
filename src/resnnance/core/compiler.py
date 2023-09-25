@@ -99,25 +99,6 @@ class ResnnanceCompiler(object):
         # Initialize model
         self.map = {layer.label: {'layer': layer} for layer in model.layers}
 
-        for layer in model.layers:
-            # Get all projections pointing to this layer
-            inprojections = [conn for conn in model.connections if conn.post == layer]
-
-            # Read incoming projections
-            for inproj in inprojections:
-                # Create weight matrix for incoming projection
-                self.map[layer.label]['weights'] = np.zeros(inproj.shape)
-
-                # Fill matrix with weights
-                for conn in inproj.connections:
-                    # Map projection connection weights into matrix (M, N): M = # synapses/pre neurons, N = # post neurons
-                    self.map[layer.label]['weights'][conn.presynaptic_index, conn.postsynaptic_index] = conn.weight
-
-                # Print connections
-                #import matplotlib.pyplot as plt
-                #plt.imshow(self.map[layer.label]['weights'], interpolation='none')
-                #plt.show()
-
         # Create engine from model
         self.__create_rsnn_engine(model)
         

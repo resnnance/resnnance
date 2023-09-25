@@ -54,6 +54,7 @@ class State(control.BaseState):
         self.populations = []
         self.projections = []
         self.builder = Builder(self)
+        self.model = None
 
     def run(self, simtime):
         self.t += simtime

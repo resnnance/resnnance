@@ -16,20 +16,11 @@ class Resnnance(object):
 
         # Model data
         self.layers = []
-        self.connections = []   # deprecated
         self.logger.info("Created empty Resnnance model")
 
     def add_layer(self, layer):
-        # TODO Add layer
         self.layers.append(layer)
-        self.logger.info(f"Added layer: {layer}")
-
-    def add_connection(self, connection):
-        # TODO Get postsynaptic layer from model
-        # TODO Add relevant weights and parameters
-        self.connections.append(connection)
-        layer = "postsynaptic_layer"
-        self.logger.info(f"Added connection: {connection} to layer {layer}")
+        self.logger.info(f"Added layer: {layer.label}")
 
     def compile(self, path=None):
         self.compiler.compile(self, path)

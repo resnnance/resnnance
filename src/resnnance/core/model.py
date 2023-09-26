@@ -1,18 +1,18 @@
 from .logger   import resnnance_logger
-from .compiler import ResnnanceCompiler
-from .plotter  import ResnnancePlotter
+from .compiler import Compiler
+from .plotter  import Plotter
 
-class Resnnance(object):
+class Model(object):
 
     def __init__(self):
         # Logger
         self.logger = resnnance_logger()
 
         # Model build
-        self.compiler = ResnnanceCompiler()
+        self.compiler = Compiler()
 
         # Plotter
-        self.plotter = ResnnancePlotter()
+        self.plotter = Plotter()
 
         # Model data
         self.layers = []

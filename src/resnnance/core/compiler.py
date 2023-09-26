@@ -4,7 +4,7 @@ import os
 import jinja2
 import numpy as np
 
-class ResnnanceCompiler(object):
+class Compiler(object):
 
     def __init__(self, build_path=None):
         # Log

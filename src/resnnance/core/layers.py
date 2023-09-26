@@ -11,6 +11,13 @@ class Layer(object):
     def get_size(self):
         raise NotImplementedError
 
+    def template_parameters(self):
+        """
+        Returns all needed parameters for the generation of a VHDL
+        template
+        """
+        raise NotImplementedError
+
 class Input(Layer):
 
     def __init__(self, label, info=None):

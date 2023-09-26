@@ -5,7 +5,7 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
-class ResnnancePlotter(object):
+class Plotter(object):
 
     def __init__(self):
         # Log

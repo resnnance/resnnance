@@ -1,8 +1,7 @@
-from resnnance.core import Resnnance
-from resnnance.core.layers import *
+import resnnance.core as rsnn
 
-from pyNN.connectors import FromListConnector
 from resnnance.pyNN.connectors import ConvConnector, PoolConnector
+from pyNN.connectors import FromListConnector
 
 import numpy as np
 
@@ -18,7 +17,7 @@ class Builder():
         """
         # Take self.simulator.populations and self.simulator.projections
         # and generate resnnance model
-        self.simulator.model = Resnnance()
+        self.simulator.model = rsnn.Model()
 
         # Create layers
         for population in self.simulator.populations:
@@ -45,7 +44,7 @@ class Builder():
         """
         if len(incoming) == 0:
             # Create input layer
-            layer_class = Input
+            layer_class = rsnn.Input
         else:
             # Get layer class from single incoming projection connector type
             layer_class = Builder.conversion[incoming[0]._connector.__class__]['class']
@@ -117,7 +116,7 @@ class Builder():
 
     # PyNN connector to Resnnance layer conversion table
     conversion = {
-        FromListConnector: {'class': Dense,   'info': __info_dense},
-        ConvConnector:     {'class': Conv2D,  'info': __info_conv2d},
-        PoolConnector:     {'class': Pooling, 'info': __info_pooling},
+        FromListConnector: {'class': rsnn.Dense,   'info': __info_dense},
+        ConvConnector:     {'class': rsnn.Conv2D,  'info': __info_conv2d},
+        PoolConnector:     {'class': rsnn.Pooling, 'info': __info_pooling},
     }

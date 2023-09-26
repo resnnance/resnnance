@@ -1,6 +1,7 @@
 from .logger import resnnance_logger
 
 import os
+import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -21,16 +22,19 @@ class ResnnancePlotter(object):
         network = nx.DiGraph()
         [network.add_node(layer.label, layer=layer) for layer in model.layers]
 
+        for i, layer in enumerate(model.layers):
+            if not i == 0:
+                network.add_edge(model.layers[i-1].label, model.layers[i].label)
+
         # Plot graph
         self.__plot_network(network, path)
 
     def __plot_network(self, network, path=None):
-        #[network.add_edge(conn.pre.label, conn.post.label, projection=conn) for conn in model.connections]
 
         # Sizes and positions
         posx = [i for i in range(network.number_of_nodes())]
         pos  = {node: [posx[i], 0] for i, node in enumerate(network.nodes)}
-        node_sizes = [ndata['layer'].get_size() for node, ndata in network.nodes(data=True)]
+        node_sizes = [400*np.log((ndata['layer'].get_size() + 120)/100) for node, ndata in network.nodes(data=True)]
 
         # Draw
         fig = plt.figure(1, figsize=(network.number_of_nodes(), 7)) #, dpi=72)

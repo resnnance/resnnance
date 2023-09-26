@@ -4,13 +4,9 @@ from resnnance.core.layers import *
 from pyNN.connectors import FromListConnector
 from resnnance.pyNN.connectors import ConvConnector, PoolConnector
 
+import numpy as np
+
 class Builder():
-    # PyNN connector to Resnnance layer conversion table
-    conversion = {
-        FromListConnector: Dense,
-        ConvConnector: Conv2D,
-        PoolConnector: Pooling
-    }
 
     def __init__(self, simulator):
         self.simulator = simulator
@@ -20,39 +16,108 @@ class Builder():
         Takes all simulator populations and projections and generates
         a compile-ready Resnnance model
         """
-        # TODO take self.simulator.populations and self.simulator.projections
+        # Take self.simulator.populations and self.simulator.projections
         # and generate resnnance model
         self.simulator.model = Resnnance()
 
-        # Search through all populations
+        # Create layers
         for population in self.simulator.populations:
             # For each population, look for incoming projections
             incoming = [projection for projection in self.simulator.projections \
                         if projection.post == population]
 
+            # Get layer information from incoming projections
             if len(incoming) > 1:
                 raise RuntimeError('Layers with multiple inputs not supported')
 
-            # Add layer
-            if len(incoming) == 0:
-                # Create input layer
-                layer_type = Input
-            else:
-                # Get layer type from single incoming projection connector type
-                layer_type = Builder.conversion[incoming[0]._connector.__class__]
-
-            # TODO Get layer information
-            
-            # ### Steps for dense layer
-
-            # # Create weight matrix for incoming projection
-            # self.map[layer.label]['weights'] = np.zeros(inproj.shape)
-
-            # # Fill matrix with weights
-            # for conn in inproj.connections:
-            #     # Map projection connection weights into matrix (M, N): M = # synapses/pre neurons, N = # post neurons
-            #     self.map[layer.label]['weights'][conn.presynaptic_index, conn.postsynaptic_index] = conn.weight
-
+            layer_class = Builder.__get_layer_class(incoming)
+            layer_info = Builder.__get_layer_info(incoming)
+    
             # Create and add layer
-            layer = layer_type(population.label)
+            layer = layer_class(population.label, layer_info)
             self.simulator.model.add_layer(layer)
+        
+        # TODO check if sequential order is kept between projections and layers
+
+    def __get_layer_class(incoming):
+        """
+        Get layer class from list of incoming projections
+        """
+        if len(incoming) == 0:
+            # Create input layer
+            layer_class = Input
+        else:
+            # Get layer class from single incoming projection connector type
+            layer_class = Builder.conversion[incoming[0]._connector.__class__]['class']
+        
+        return layer_class
+    
+    def __get_layer_info(incoming):
+        """
+        Returns resnnance layer info from list of incoming projections
+        """
+        if len(incoming) == 0:
+            # TODO set input layer weights/values
+            return None
+        else:
+            # Gets relevant __info function 
+            info = Builder.conversion[incoming[0]._connector.__class__]['info']
+            return info(incoming[0])
+
+    def __info_dense(projection):
+        """
+        Returns dense layer weights from a PyNN FromListConnector
+        """
+        # Create weight matrix for incoming projection
+        weights = np.zeros(projection.shape)
+
+        # Fill matrix with weights
+        for conn in projection.connections:
+            # Map projection connection weights into matrix (M, N): M = # synapses/pre neurons, N = # post neurons
+            weights[conn.presynaptic_index, conn.postsynaptic_index] = conn.weight
+
+        return weights
+
+    def __info_conv2d(projection):
+        """
+        Returns conv2D layer info from a PyNN ConvConnector
+        """
+        info = {}
+
+        # Input size
+        ny, nx = projection.info['input_size']
+        nz = 1 #projection.info['input_ch']
+        info['n'] = (ny, nx, nz)
+
+        # Stride
+        info['stride'] = projection.info['strides']
+        info['padding'] = projection.info['padding']
+
+        # Kernel data
+        info['kernel'] = projection.info['weights']
+
+        return info
+
+    def __info_pooling(projection):
+        """
+        Returns pooling layer info from a PyNN FromListConnector
+        """
+        info = {}
+
+        # Input size
+        ny, nx = projection.info['input_size']
+        nz = projection.info['input_ch']
+        info['n'] = (ny, nx, nz)
+
+        # Stride and pool size
+        info['stride'] = projection.info['strides']
+        info['pool'] = projection.info['pool_size']
+
+        return info
+
+    # PyNN connector to Resnnance layer conversion table
+    conversion = {
+        FromListConnector: {'class': Dense,   'info': __info_dense},
+        ConvConnector:     {'class': Conv2D,  'info': __info_conv2d},
+        PoolConnector:     {'class': Pooling, 'info': __info_pooling},
+    }

@@ -20,7 +20,7 @@ class Resnnance(object):
 
     def add_layer(self, layer):
         self.layers.append(layer)
-        self.logger.info(f"Added layer: {layer.label}")
+        self.logger.info(f"Added {layer.__class__.__name__} layer: {layer.label}")
 
     def compile(self, path=None):
         self.compiler.compile(self, path)

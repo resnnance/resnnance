@@ -1,6 +1,7 @@
 DEFAULT = 1
 
 class Layer(object):
+    template = None
 
     def __init__(self, label, info=None):
         raise NotImplementedError
@@ -11,7 +12,7 @@ class Layer(object):
     def get_size(self):
         raise NotImplementedError
 
-    def template_parameters(self):
+    def get_template_params(self):
         """
         Returns all needed parameters for the generation of a VHDL
         template
@@ -19,6 +20,7 @@ class Layer(object):
         raise NotImplementedError
 
 class Input(Layer):
+    template = "hw/snaps/input.vhd"
 
     def __init__(self, label, info=None):
         self.label = label
@@ -40,7 +42,11 @@ class Input(Layer):
         else:
             return self.weights.shape[1]
 
+    def get_template_params(self):
+        return {'weights': self.weights}
+
 class Dense(Layer):
+    template = "hw/snaps/dense.vhd"
 
     def __init__(self, label, info=None):
         self.label = label
@@ -62,7 +68,11 @@ class Dense(Layer):
         else:
             return len(self.weights.flatten())
 
+    def get_template_params(self):
+        return {'weights': self.weights}
+
 class Conv2D(Layer):
+    template = "hw/snaps/conv2d.vhd"
 
     def __init__(self, label, info=None):
         self.label = label
@@ -87,7 +97,16 @@ class Conv2D(Layer):
         else:
             return len(self.kernel.flatten())
 
+    def get_template_params(self):
+        return {
+            'n': self.n,
+            'stride': self.stride,
+            'padding': self.padding,
+            'kernel': self.kernel
+        }
+
 class Pooling(Layer):
+    template = "hw/snaps/pooling.vhd"
 
     def __init__(self, label, info=None):
         self.label = label
@@ -112,3 +131,10 @@ class Pooling(Layer):
             return DEFAULT
         else:
             return self.pool[0] * self.pool[1] 
+
+    def get_template_params(self):
+        return {
+            'n': self.n,
+            'stride': self.stride,
+            'pool': self.pool
+        }

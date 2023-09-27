@@ -14,92 +14,61 @@ class Compiler(object):
         self.env = jinja2.Environment(loader=jinja2.PackageLoader("resnnance.core", "templates"))
 
         # Set default build path
-        if not build_path == None:
+        if build_path is None:
+            self.build_path = ""
+        else:
             self.build_path = build_path
-
-    def __create_snaps(self, num):
-        # Create template from string
-        template = self.env.get_template("hw/rsnn_snap.vhd")
-
-        # Set up build directory
-        if not os.path.exists(self.build_path):
-            os.makedirs(self.build_path)
-
-        # Set up snaps directory
-        if not os.path.exists(os.path.join(self.build_path, "snaps")):
-            os.makedirs(os.path.join(self.build_path, "snaps"))
-
-        # Render template
-        for i in range(num):
-            # Set template parameters and render content
-            params = {'entity_name': f"rsnn_snap_{i}", 'arch_name': 'arch'}
-            content = template.render(**params)
-
-            # Write to files
-            filename = f"rsnn_snap_{i}.vhd"
-            filepath = os.path.join(self.build_path, "snaps", filename)
-            with open(filepath, mode="w", encoding="utf-8") as message:
-                message.write(content)
-                self.logger.info(f"Created rsnn_snap_{i}")
-
-    def __create_rsnn_engine(self, model):
-        # Fetch RISC-V templates
-        templates = {
-            'bus' : self.env.get_template("hw/sbus.vhd"),
-            'engine' : self.env.get_template("hw/rsnn.vhd"),
-            'core' : self.env.get_template("hw/rsnn_core.vhd")
-        }
-
-        # Set slave parameters
-        params = {
-            'bus': {
-                'entity_name': "sbus",
-            },
-            'engine': {
-                'entity_name': "rsnn",
-                'core_name': "rsnn_core",
-                'mem_depth': 8
-            },
-            'core': {
-                'entity_name': "rsnn_core",
-            }
-        }
-
-        # Set up build directory
-        if not os.path.exists(self.build_path):
-            os.makedirs(self.build_path)
-
-        # Render and write to files
-        for name, template in templates.items():
-            # Render content
-            content = template.render(**params[name])
-
-            # Generate file path
-            filename = f"{params[name]['entity_name']}.vhd"
-            filepath = os.path.join(self.build_path, filename)
-
-            # Write to file
-            with open(filepath, mode="w", encoding="utf-8") as module:
-                module.write(content)
-                self.logger.info(f"Created {params[name]['entity_name']}")
-
-        # Create snaps
-        self.__create_snaps(4)
-
-        # Log slave creation
-        self.logger.info(f"Created RISC-V Resnnance engine")
 
     def compile(self, model, path=None):
         self.logger.info("Compiling Resnnance model...")
 
         # Set build path
-        if not path == None:
+        if not path is None:
             self.build_path = path
 
-        # Initialize model
-        self.map = {layer.label: {'layer': layer} for layer in model.layers}
+        # Set up directory tree
+        if not os.path.exists(os.path.join(self.build_path, "snaps")):
+            os.makedirs(os.path.join(self.build_path, "snaps"))
 
-        # Create engine from model
-        self.__create_rsnn_engine(model)
+        # Compile model
+        #   One snap per layer
+        #   One network wrapper
+        #   One network controller
+        #   One engine (RISC-V peripheral)
+
+        # Compile layers
+        for layer in model.layers:
+            # Get layer parameters and render layer (snap) file
+            params = layer.get_template_params()
+            self.__render_template(layer.template, params, f"{layer.label}.vhd", "snaps")
+            
+        # Connect layers and render network file
+        params = {'layers': [layer.label for layer in model.layers]}
+        self.__render_template("hw/network.vhd", params, "network.vhd")
+
+        # Render controller file
+        params = {}
+        self.__render_template("hw/control.vhd", params, "control.vhd")
+
+        # Render engine file
+        params = {}
+        self.__render_template("hw/engine.vhd", params, "engine.vhd")
         
         self.logger.info("Compiling Resnnance model - OK")
+
+    def __render_template(self, tmp_path, params, filename, subpath=None):
+        # Connect layers and compile network
+        template = self.env.get_template(tmp_path)
+        content  = template.render(**params)
+
+        # Write to file
+        if subpath is None:
+            subfile = filename
+        else:
+            subfile = os.path.join(subpath, filename)
+
+        filepath = os.path.join(self.build_path, subfile)
+        with open(filepath, mode="w", encoding="utf-8") as message:
+            message.write(content)
+            self.logger.info(f"Created {subfile}")
+

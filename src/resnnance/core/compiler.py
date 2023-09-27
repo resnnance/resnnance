@@ -26,10 +26,6 @@ class Compiler(object):
         if not path is None:
             self.build_path = path
 
-        # Set up directory tree
-        if not os.path.exists(os.path.join(self.build_path, "snaps")):
-            os.makedirs(os.path.join(self.build_path, "snaps"))
-
         # Compile model
         #   One snap per layer
         #   One network wrapper
@@ -37,13 +33,10 @@ class Compiler(object):
         #   One engine (RISC-V peripheral)
 
         # Compile layers
-        for layer in model.layers:
-            # Get layer parameters and render layer (snap) file
-            params = layer.get_template_params()
-            self.__render_template(layer.template, params, f"{layer.label}.vhd", "snaps")
-            
+        [self.__render_layer(layer, "layers") for layer in model.layers]
+
         # Connect layers and render network file
-        params = {'layers': [layer.label for layer in model.layers]}
+        params = {}
         self.__render_template("hw/network.vhd", params, "network.vhd")
 
         # Render controller file
@@ -56,9 +49,8 @@ class Compiler(object):
         
         self.logger.info("Compiling Resnnance model - OK")
 
-    def __render_template(self, tmp_path, params, filename, subpath=None):
-        # Connect layers and compile network
-        template = self.env.get_template(tmp_path)
+    def __render_template(self, tmppath, params, filename, subpath=None):
+        template = self.env.get_template(tmppath)
         content  = template.render(**params)
 
         # Write to file
@@ -67,8 +59,26 @@ class Compiler(object):
         else:
             subfile = os.path.join(subpath, filename)
 
+            # Generate directories for subpath
+            if not os.path.exists(os.path.join(self.build_path, subpath)):
+                os.makedirs(os.path.join(self.build_path, subpath))
+
+        # Create complete filepath
         filepath = os.path.join(self.build_path, subfile)
+
         with open(filepath, mode="w", encoding="utf-8") as message:
             message.write(content)
             self.logger.info(f"Created {subfile}")
 
+    def __render_layer(self, layer, subpath=None):
+        """
+        Renders a layer into a set of VHDL files
+        defined from templates in the layer class
+        """
+
+        # Render all layer templates
+        for key, tmppath in layer.templates.items():
+            # Get layer parameters for each template
+            params = layer.get_template_params()[key]
+            # Render each layer template
+            self.__render_template(tmppath, params, f"{params['name']}.vhd", subpath)

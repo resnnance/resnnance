@@ -1,7 +1,9 @@
+import numpy as np
+
 DEFAULT = 1
 
 class Layer(object):
-    template = None
+    templates = None
 
     def __init__(self, label, info=None):
         raise NotImplementedError
@@ -20,10 +22,13 @@ class Layer(object):
         raise NotImplementedError
 
 class Input(Layer):
-    template = "hw/snaps/input.vhd"
+    templates = {
+        'core':    "hw/layers/input.vhd",
+        'weights': "hw/layers/input_weights.vhd"
+    }
 
     def __init__(self, label, info=None):
-        self.label = label
+        self.label = "layer_" + label
 
         if info is None:
             self.weights = None
@@ -43,13 +48,26 @@ class Input(Layer):
             return self.weights.shape[1]
 
     def get_template_params(self):
-        return {'weights': self.weights}
+        params = {
+            'core': {
+                'name': self.label,
+                'weights': self.label + "_weights"
+            },
+            'weights': {
+                'name': self.label + "_weights",
+                'weights': self.weights
+            }
+        }
+        return params
 
 class Dense(Layer):
-    template = "hw/snaps/dense.vhd"
+    templates = {
+        'core':    "hw/layers/dense.vhd",
+        'weights': "hw/layers/dense_weights.vhd"
+    }
 
     def __init__(self, label, info=None):
-        self.label = label
+        self.label = "layer_" + label
 
         if info is None:
             self.weights = None
@@ -69,13 +87,28 @@ class Dense(Layer):
             return len(self.weights.flatten())
 
     def get_template_params(self):
-        return {'weights': self.weights}
+        params = {
+            'core': {
+                'name': self.label,
+                'weights': self.label + "_weights",
+                'logm': int(np.ceil(np.log2(self.weights.shape[0]))),
+                'logn': int(np.ceil(np.log2(self.weights.shape[1]))),
+            },
+            'weights': {
+                'name': self.label + "_weights",
+                'weights': self.weights
+            }
+        }
+        return params
 
 class Conv2D(Layer):
-    template = "hw/snaps/conv2d.vhd"
+    templates = {
+        'core':   "hw/layers/conv2d.vhd",
+        'kernel': "hw/layers/conv2d_kernel.vhd"
+    }
 
     def __init__(self, label, info=None):
-        self.label = label
+        self.label = "layer_" + label
 
         if info is None:
             self.n = None
@@ -98,18 +131,28 @@ class Conv2D(Layer):
             return len(self.kernel.flatten())
 
     def get_template_params(self):
-        return {
-            'n': self.n,
-            'stride': self.stride,
-            'padding': self.padding,
-            'kernel': self.kernel
+        params = {
+            'core': {
+                'name': self.label,
+                'kernel': self.label + "_kernel",
+                'n': self.n,
+                'stride': self.stride,
+                'padding': self.padding
+            },
+            'kernel': {
+                'name': self.label + "_kernel",
+                'kernel': self.kernel
+            }
         }
+        return params
 
 class Pooling(Layer):
-    template = "hw/snaps/pooling.vhd"
+    templates = {
+        'core': "hw/layers/pooling.vhd"
+    }
 
     def __init__(self, label, info=None):
-        self.label = label
+        self.label = "layer_" + label
 
         if info is None:
             self.n = None
@@ -133,8 +176,12 @@ class Pooling(Layer):
             return self.pool[0] * self.pool[1] 
 
     def get_template_params(self):
-        return {
-            'n': self.n,
-            'stride': self.stride,
-            'pool': self.pool
+        params = {
+            'core': {
+                'name': self.label,
+                'n': self.n,
+                'stride': self.stride,
+                'pool': self.pool
+            }
         }
+        return params

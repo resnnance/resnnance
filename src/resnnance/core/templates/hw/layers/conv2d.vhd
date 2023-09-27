@@ -1,11 +1,11 @@
 --
--- {{ entity_name }}
+-- {{ name }}
 --
 
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity {{ entity_name }} is
+entity {{ name }} is
 {% if generics | length %}
 generic (
     {{ generics }}
@@ -16,9 +16,9 @@ port (
     {{ ports }}
 )
 {% endif %}
-end {{ entity_name }};
+end {{ name }};
 
-architecture arch of {{ entity_name }} is
+architecture arch of {{ name }} is
 begin
     {{ arch_description }}
 end arch;

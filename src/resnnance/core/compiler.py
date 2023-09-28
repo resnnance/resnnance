@@ -36,8 +36,20 @@ class Compiler(object):
         [self.__render_layer(layer, "layers") for layer in model.layers]
 
         # Connect layers and render network file
-        params = {}
+        params = {
+            'layers': [
+                {
+                    'label': layer.label,
+                    'logn':  4  #layer.get_logn()
+                }
+                for layer in model.layers
+            ],
+        }
         self.__render_template("hw/network.vhd", params, "network.vhd")
+
+        # Render simtick file
+        params = {}
+        self.__render_template("hw/simtick.vhd", params, "simtick.vhd")
 
         # Render controller file
         params = {}

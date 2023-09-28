@@ -1,3 +1,13 @@
+---
+-- dense.vhd
+--
+-- params:
+--      'name':    self.label
+--      'weights': self.label + "_weights"
+--      'logm':    int(np.ceil(np.log2(self.weights.shape[0]))),
+--      'logn':    int(np.ceil(np.log2(self.weights.shape[1]))),
+---
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -114,25 +124,9 @@ architecture arch of {{ name }} is
     signal s0_in, s0_out: std_logic;
 
     -- w
-    type w_mem_t   is array (0 to 2**n-1) of signed(15 downto 0);
-    type w_group_t is array (0 to 2**m-1) of w_mem_t;
-    type w_ports_t is array (w_group_t'range) of signed(15 downto 0);
+    signal w_group: synapse_matrix_t := {{ weights }}_matrix;   -- Weight matrix
 
-    impure function rand_w(min_val, max_val: integer) return w_group_t is
-        variable s: signed(15 downto 0) := (others => '0');
-        variable w: w_group_t;
-    begin
-        for i in w_group_t'range loop
-            for j in w_mem_t'range loop
-                w(i)(j) := resize(resize(s, 14), 16);
-                s := s + to_signed(12435, 16);
-            end loop;
-        end loop;
-
-        return w;
-    end function;
-
-    signal w_group:     w_group_t := rand_w(-1024, 1024);
+    type w_ports_t is array (synapse_matrix_t'range) of signed(15 downto 0);
     signal w_in, w_out: w_ports_t;
     signal w_wr: std_logic;
 

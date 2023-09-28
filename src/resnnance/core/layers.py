@@ -10,7 +10,7 @@ class Layer(object):
 
     def set_layer(self, info):
         raise NotImplementedError
-
+    
     def get_size(self):
         raise NotImplementedError
 
@@ -80,6 +80,9 @@ class Dense(Layer):
         else:
             raise ValueError('Wrong weight matrix shape')
 
+    def get_logn(self):
+        return int(np.ceil(np.log2(self.weights.shape[1]))),
+
     def get_size(self):
         if self.weights is None:
             return DEFAULT
@@ -96,7 +99,9 @@ class Dense(Layer):
             },
             'weights': {
                 'name': self.label + "_weights",
-                'weights': self.weights
+                'weights': self.weights,
+                'm': self.weights.shape[0],
+                'n': self.weights.shape[1]
             }
         }
         return params

@@ -14,6 +14,9 @@ class Layer(object):
     def get_size(self):
         raise NotImplementedError
 
+    def get_logn(self):
+        raise NotImplementedError
+
     def get_template_params(self):
         """
         Returns all needed parameters for the generation of a VHDL
@@ -46,6 +49,12 @@ class Input(Layer):
             return DEFAULT
         else:
             return self.weights.shape[1]
+
+    def get_logn(self):
+        if self.weights is None:
+            return DEFAULT
+        else:
+            return int(np.ceil(np.log2(self.weights.shape[1])))
 
     def get_template_params(self):
         params = {
@@ -81,7 +90,10 @@ class Dense(Layer):
             raise ValueError('Wrong weight matrix shape')
 
     def get_logn(self):
-        return int(np.ceil(np.log2(self.weights.shape[1]))),
+        if self.weights is None:
+            return DEFAULT
+        else:
+            return int(np.ceil(np.log2(self.weights.shape[1])))
 
     def get_size(self):
         if self.weights is None:
@@ -135,6 +147,12 @@ class Conv2D(Layer):
         else:
             return len(self.kernel.flatten())
 
+    def get_logn(self):
+        if self.kernel is None:
+            return DEFAULT
+        else:
+            return 1
+
     def get_template_params(self):
         params = {
             'core': {
@@ -179,6 +197,12 @@ class Pooling(Layer):
             return DEFAULT
         else:
             return self.pool[0] * self.pool[1] 
+
+    def get_logn(self):
+        if self.pool is None:
+            return DEFAULT
+        else:
+            return 1
 
     def get_template_params(self):
         params = {

@@ -38,10 +38,7 @@ class Compiler(object):
         # Connect layers and render network file
         params = {
             'layers': [
-                {
-                    'label': layer.label,
-                    'logn':  4  #layer.get_logn()
-                }
+                {'label': layer.label, 'logn': layer.get_logn()}
                 for layer in model.layers
             ],
         }

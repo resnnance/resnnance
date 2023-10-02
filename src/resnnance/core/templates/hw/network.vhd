@@ -8,7 +8,9 @@ port (
 
     tick: out std_logic;
     so:   out std_logic;
-    aso:  in  std_logic_vector(?? downto 0);
+    {%- with last = layers | last %}
+    aso:  in  std_logic_vector({{ last.logn }}-1 downto 0);
+    {%- endwith %}
     rso:  in  std_logic
 );
 end {{ entity_name }};
@@ -22,7 +24,7 @@ architecture arch of {{ entity_name }} is
     signal so_{{ layer.label }}: std_logic;
     {%- endfor %}
     {% for layer in layers %}
-    signal aso_{{ layer.label }}: std_logic_vector({{ layer.logn }} - 1 downto 0);
+    signal aso_{{ layer.label }}: std_logic_vector({{ layer.logn }}-1 downto 0);
     {%- endfor %}
     {% for layer in layers %}
     signal rso_{{ layer.label }}: std_logic;

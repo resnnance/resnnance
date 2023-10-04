@@ -24,16 +24,17 @@ generic (
 port (
     rst:  in  std_logic;
     clk:  in  std_logic;
+    tick: in  std_logic;
 
     -- Input
-    tick: in  std_logic;
-    addr: out std_logic_vector(m-1 downto 0);
-    rdi:  out std_logic;
+    asi:  out std_logic_vector(m-1 downto 0);
+    rsi:  out std_logic;
     si:   in  std_logic;
 
     -- Output
-    so:   out std_logic_vector(2**n-1 downto 0);
-    eo:   out std_logic
+    aso: in  std_logic_vector(n-1 downto 0);
+    rso: in  std_logic;
+    so:  out std_logic;
 );
 end {{ name }};
 
@@ -51,8 +52,12 @@ architecture arch of {{ name }} is
         constant urest: signed(15 downto 0) := to_signed(-64,  16);
     begin
         -- Default - no spiking
+    return neuron_state_t is
+        variable xg:    neuron_state_t;
         xg := x;
 
+        constant urest: signed(15 downto 0) := to_signed(-64,  16);
+    begin
         -- Virtual synapse
         if s0 = '1' then
             xg.u := urest;
@@ -231,7 +236,7 @@ begin
         rn.eo <= '0';
 
         -- Spike input control
-        rdi <= '0';
+        rsi <= '0';
         srd <= '0';
 
         -- Memory control
@@ -242,12 +247,12 @@ begin
         if tick = '1' and rr.sc = 0 then
             -- Start counting
             rn.sc <= rr.sc + 1;
-            rdi   <= '1';
+            rsi   <= '1';
             srd   <= '1';
         elsif rr.sc > 0 then
             -- Keep counting
             rn.sc <= rr.sc + 1;
-            rdi   <= '1';
+            rsi   <= '1';
         end if;
 
         -- Propagate spike input read
@@ -368,8 +373,7 @@ begin
 
     ---
     -- Outputs
-    addr <= std_logic_vector(rr.sc);
+    asi <=  std_logic_vector(rr.sc);
     so   <= rr.so;
-    eo   <= rr.eo;
 
 end arch;

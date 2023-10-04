@@ -39,7 +39,7 @@ class Input(Layer):
             self.set_layer(info)
     
     def set_layer(self, info):
-        if info.ndim == 2:
+        if info.ndim == 1:
             self.weights = info     # Dense weight matrix
         else:
             raise ValueError('Wrong weight matrix shape')
@@ -48,23 +48,25 @@ class Input(Layer):
         if self.weights is None:
             return DEFAULT
         else:
-            return self.weights.shape[1]
+            return self.weights.shape[0]
 
     def get_logn(self):
         if self.weights is None:
             return DEFAULT
         else:
-            return int(np.ceil(np.log2(self.weights.shape[1])))
+            return int(np.ceil(np.log2(self.weights.shape[0])))
 
     def get_template_params(self):
         params = {
             'core': {
                 'name': self.label,
-                'weights': self.label + "_weights"
+                'weights': self.label + "_weights",
+                'logn': self.get_logn()
             },
             'weights': {
                 'name': self.label + "_weights",
-                'weights': self.weights
+                'weights': self.weights,
+                'n': self.get_size()
             }
         }
         return params
@@ -107,7 +109,7 @@ class Dense(Layer):
                 'name': self.label,
                 'weights': self.label + "_weights",
                 'logm': int(np.ceil(np.log2(self.weights.shape[0]))),
-                'logn': int(np.ceil(np.log2(self.weights.shape[1]))),
+                'logn': self.get_logn()
             },
             'weights': {
                 'name': self.label + "_weights",

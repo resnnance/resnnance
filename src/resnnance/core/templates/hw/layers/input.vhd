@@ -44,54 +44,110 @@ architecture arch of {{ name }} is
     signal mem_spike_in, mem_spike_out: std_logic;
     signal mem_wr: std_logic;
 
-    alias naso: natural range mem_spike_t'range is to_integer(unsigned(aso));
-
     ---
     -- LFSR
-
-    -- Galois 16-bit LSFR primitive polynomial
-    -- p(x) = x^16 + x^14 + x^13 + x^11 + 1
-    --
-    -- (The independent term is not considered when encoding
-    -- the polynomial into the following digital signal, and
-    -- the highest order term should also be ignored)
-    constant poly: std_logic_vector(w-1 downto 0) := x"B400"
-    constant seed: std_logic_vector(w-1 downto 0) := x"FFFF"    -- Can't be zero
-    signal ln, lr: std_logic_vector(w-1 downto 0);
-begin
-
-    ---
-    -- LFSR
-    lfsr_reg: process (rst, clk)
+    function fibonacci(lr: std_logic_vector)
+    return std_logic_vector is
+        ---
+        -- Galois 16-bit LSFR primitive polynomial
+        --
+        -- (The independent term is not considered when encoding
+        -- the polynomial into the following constant)
+        --
+        -- p(x) = x^16 + x^15 + x^13 +  x^4 + 1 = x"D008"
+        constant poly: std_logic_vector(lr'range) := x"D008";
+        variable ln:   std_logic_vector(lr'range);
     begin
-        if rst = '0' then
-            lr <= seed;
-        elsif rising_edge(clk) then
-            lr <= ln;
-        end if;
-    end process
+        -- Shift
+        for i in ln'length-2 downto 0 loop
+            ln(i) := lr(i+1);
+        end loop;
 
-    lfsr_dp: process (lr)
-    begin
-        -- Polynomial xor'ing
-        for i in lr'length-2 downto 0 loop:
+        -- Feedback
+        ln(ln'length-1) := '0';
+        for i in poly'range loop
             if poly(i) = '1' then
-                ln(i) <= lr(i+1) xor lr(0);
-            else
-                ln(i) <= lr(i+1);
+                ln(ln'length-1) := ln(ln'length-1) xor lr(lr'left-i);
             end if;
         end loop;
 
-        -- Polynomial independent term
-        ln(w-1) <= lr(0);
+        return ln;
+    end function;
+
+    constant seed: std_logic_vector(w-1 downto 0) := x"0001";   -- Can't be zero
+
+    ---
+    -- Registers
+    type state_t is (idle, running);
+    type reg_t is record
+        state: state_t;
+        addr:  unsigned(n-1 downto 0);
+        lfsr:  std_logic_vector(w-1 downto 0);
+    end record;
+    signal rn, rr: reg_t;
+begin
+
+    ---
+    -- Registers
+    reg: process (rst, clk)
+    begin
+        if rst = '0' then
+            rr <= (
+                state => idle,
+                addr  => (others => '0'),
+                lfsr  => seed
+            );
+        elsif rising_edge(clk) then
+            rr <= rn;
+        end if;
+    end process;
+
+    ---
+    -- Datapath
+    dp: process (tick, rr)
+    begin
+        -- Default
+        rn     <= rr;
+        mem_rd <= '0';
+        mem_wr <= '0';
+
+        -- State-independent connections
+        mem_input_addr <= to_integer(rr.addr);
+        mem_spike_addr <= to_integer(rr.addr);
+
+        -- Spike generation
+        if unsigned(rr.lfsr) < mem_input_out then
+            -- Big output, bigger chance of spike
+            mem_spike_in <= '1';
+        else 
+            mem_spike_in <= '0';
+        end if;
+
+        case rr.state is
+            when idle =>
+                -- NSL
+                if tick = '1' then
+                    rn.state <= running;
+                end if;
+            when running =>
+                -- NSL
+                if rr.addr + 1 = 0 then
+                    rn.state <= idle;
+                end if;
+
+                mem_rd  <= '1';
+                mem_wr  <= '1';
+                rn.addr <= rr.addr + 1;
+                rn.lfsr <= fibonacci(rr.lfsr);
+        end case;
     end process;
 
     ---
     -- Input memory
-    mem_input: process (clk)
+    mem_input_ram: process (clk)
     begin
         if rising_edge(clk) then
-            if mem_rd == '1' then
+            if mem_rd = '1' then
                 mem_input_out <= mem_input(mem_input_addr);
             end if;
         end if;
@@ -99,17 +155,17 @@ begin
 
     ---
     -- Spike memory
-    mem_spike: process (clk)
+    mem_spike_ram: process (clk)
     begin
         -- Dual port
         if rising_edge(clk) then
             -- Input side
-            if mem_wr == '1' then
+            if mem_wr = '1' then
                 mem_spike(mem_spike_addr) <= mem_spike_in;
             end if;
             -- Output side
-            if rso == '1' then
-                so <= mem_spike(naso);
+            if rso = '1' then
+                so <= mem_spike(to_integer(unsigned(aso)));
             end if;
         end if;
     end process;

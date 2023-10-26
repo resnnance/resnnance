@@ -166,10 +166,42 @@ class Conv2D(Layer):
         ny, nx, nz = self.input_shape
         return ny * nx * nz
 
+    def __flatten_zy(self):
+        #
+        #         #-----------------#
+        #         | c00 | c01 | c02 |
+        #     #-----------------# --|
+        #     | b00 | b01 | b02 | 2 |
+        # #-----------------# --| --|
+        # | a00 | a01 | a02 | 2 | 2 |
+        # |-----|-----|-----| --| --#
+        # | a10 | a11 | a12 | 2 |
+        # |-----|-----|-----| --#
+        # | a20 | a21 | a22 |
+        # #-----------------#
+        #
+        #          ||  .flatten (z, y)
+        #          \/
+        #
+        # [a00, b00, c00, a01, b01, c01, ... , a22, b22, c22]
+
+        kernels = []
+        ky, kx, kz, f = self.kernel_shape
+
+        for kernel in self.weights:
+            flat = np.empty(ky * kx)
+
+            for i, row in enumerate(kernel):
+                for j, col in enumerate(row):
+                    flat = np.concatenate(flat, kernel[i,j,:])
+            kernels.append(flat)
+
+        return kernels
+
     def set_layer(self, info):
         self.input_shape = info['input_shape']
         self.kernel_shape = info['kernel_shape']
-        self.weights = info['weights']
+        self.weights = [info['weights'][:,:,:,i] for i in range(info['weights'].shape[3])]
         self.padding = info['padding']
         self.strides = info['strides']
 
@@ -177,7 +209,7 @@ class Conv2D(Layer):
         if self.weights is None:
             return DEFAULT
         else:
-            return len(self.weights.flatten())
+            return sum([len(kernel.flatten()) for kernel in self.weights])
 
     def get_logm(self):
         ny, nx, nz = self.input_shape
@@ -204,7 +236,8 @@ class Conv2D(Layer):
             },
             'weights': {
                 'name': self.label + "_weights",
-                'weights': self.weights
+                'k': self.kernel_shape,         # (ky, kx, 1, f)
+                'weights': self.__flatten_zy()
             }
         }
         return params

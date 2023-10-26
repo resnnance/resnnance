@@ -5,19 +5,18 @@ use ieee.math_real.ALL;
 
 package {{ name }} is
 
-    constant m: integer := {{ m }};     -- Synapses per neuron
-    constant n: integer := {{ n }};     -- Neurons
-
+    constant m: natural := {{ m }};     -- Synapses per neuron
+    constant n: natural := {{ n }};     -- Neurons
     constant w: natural := 16;          -- Weight bit width
-    type synapse_vector_t is array (0 to m-1) of signed(w-1 downto 0);
-    type synapse_matrix_t is array (0 to n-1) of synapse_vector_t;
+
+    function weight_conversion(matrix: synapse_matrix_real_t) return synapse_matrix_t;
 
     type synapse_vector_real_t is array (0 to m-1) of real;
     type synapse_matrix_real_t is array (0 to n-1) of synapse_vector_real_;
 
-    function weight_conversion(matrix: synapse_matrix_real_t) return synapse_matrix_t;
+    type synapse_vector_t is array (0 to m-1) of signed(w-1 downto 0);
+    type synapse_matrix_t is array (0 to n-1) of synapse_vector_t;
 
-    constant {{ name }}_matrix: synapse_matrix_t := weight_conversion({{ name }}_matrix_real);
     constant {{ name }}_matrix_real: synapse_matrix_real_t :=
     (
         {% for synapse in weights -%}
@@ -26,6 +25,7 @@ package {{ name }} is
         {%- endfor %}){% if not loop.last %},
         {% endif %}{%- endfor %}
     );
+    constant {{ name }}_matrix: synapse_matrix_t := weight_conversion({{ name }}_matrix_real);
 
 end {{ name }};
 

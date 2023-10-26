@@ -23,6 +23,8 @@
 -- Input shape:  ({{ n[0] }}, {{ n[1] }}, {{ n[2] }})
 -- Kernel shape: ({{ k[0] }}, {{ k[1] }}, {{ k[2] }}) x {{ k[3] }} kernels
 -- Output shape: ({{ m[0] }}, {{ m[1] }}, {{ m[2] }})
+--
+-- (y, x, z)
 ---
 
 library ieee;

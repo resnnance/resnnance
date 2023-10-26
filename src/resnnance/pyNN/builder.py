@@ -81,20 +81,7 @@ class Builder():
         """
         Returns conv2D layer info from a PyNN ConvConnector
         """
-        info = {}
-
-        # Input size
-        ny, nx = projection.info['input_size']
-        nz = 1 #projection.info['input_ch']
-        info['n'] = (ny, nx, nz)
-
-        # Stride
-        info['stride'] = projection.info['strides']
-        info['padding'] = projection.info['padding']
-
-        # Kernel data
-        info['kernel'] = projection.info['weights']
-
+        info = projection.info
         return info
 
     def __info_pooling(projection):

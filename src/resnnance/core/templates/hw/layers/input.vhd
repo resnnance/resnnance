@@ -1,14 +1,13 @@
 ---
--- input.vhd
+-- {{ name }}.vhd
+--
+-- Input layer
 --
 -- params:
 --      'name':    self.label
 --      'weights': self.label + "_weights"
 --      'logn':    int(np.ceil(np.log2(self.weights.shape[1]))),
 ---
---
--- {{ name }}
---
 
 library ieee;
 use ieee.std_logic_1164.all;

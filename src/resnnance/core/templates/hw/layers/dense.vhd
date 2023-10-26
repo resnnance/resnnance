@@ -1,5 +1,7 @@
 ---
--- dense.vhd
+-- {{ name }}.vhd
+--
+-- Dense layer
 --
 -- params:
 --      'name':    self.label

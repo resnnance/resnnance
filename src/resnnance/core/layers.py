@@ -123,50 +123,88 @@ class Dense(Layer):
 class Conv2D(Layer):
     templates = {
         'core':   "hw/layers/conv2d.vhd",
-        'kernel': "hw/layers/conv2d_kernel.vhd"
+        'weights': "hw/layers/conv2d_weights.vhd"
     }
 
     def __init__(self, label, info=None):
         self.label = "layer_" + label
 
         if info is None:
-            self.n = None
-            self.stride = None
+            self.input_shape = None
+            self.kernel_shape = None
+            self.weights = None
             self.padding = None
-            self.kernel = None
+            self.strides = None
         else:
             self.set_layer(info)
 
+    def __get_output_shape(self):
+        ny, nx, nz    = self.input_shape
+        ky, kx, kz, f = self.kernel_shape
+        sy, sx        = self.strides
+
+        if self.padding == 'valid':    # No padding
+            return (ny - ky + 1) // sy, (nx - kx + 1) // sx, f
+        elif self.padding == 'same':   # Padding generates same sized output
+            return ny // sy, nx // sx, f
+
+    def __get_inital_position(self):
+        ky, kx, kz, f = self.kernel_shape
+
+        if self.padding == 'valid':    # No padding
+            return (ky - 1) // 2, (kx + 1) // 2
+        elif self.padding == 'same':   # Padding generates same sized output
+            return 0, 0
+
+    def __get_lbuffer_len(self):
+        ny, nx, nz    = self.input_shape
+        ky, kx, kz, f = self.kernel_shape
+
+        return ((ky - 1) * nx + kx) * nz
+
+    def __get_synapses(self):
+        ny, nx, nz = self.input_shape
+        return ny * nx * nz
+
     def set_layer(self, info):
-        self.n = info['n']              # Input dimensions (y,x,z)
-        self.stride = info['stride']    # Stride steps (y,x)
-        self.padding = info['padding']  # Padding (valid, none)
-        self.kernel = info['kernel']    # Array of kernel weight matrices
+        self.input_shape = info['input_shape']
+        self.kernel_shape = info['kernel_shape']
+        self.weights = info['weights']
+        self.padding = info['padding']
+        self.strides = info['strides']
 
     def get_size(self):
-        if self.kernel is None:
+        if self.weights is None:
             return DEFAULT
         else:
-            return len(self.kernel.flatten())
+            return len(self.weights.flatten())
+
+    def get_logm(self):
+        ny, nx, nz = self.input_shape
+        return int(np.ceil(np.log2(ny * nx * nz)))
 
     def get_logn(self):
-        if self.kernel is None:
-            return DEFAULT
-        else:
-            return 1
+        my, mx, f = self.__get_output_shape()
+        return int(np.ceil(np.log2(my * mx * f)))
 
     def get_template_params(self):
         params = {
             'core': {
                 'name': self.label,
-                'kernel': self.label + "_kernel",
-                'n': self.n,
-                'stride': self.stride,
-                'padding': self.padding
+                'weights': self.label + "_weights",
+                'logm': self.get_logm(),
+                'logn': self.get_logn(),
+                'syn': self.__get_synapses(),
+                'n': self.input_shape,          # (ny, nx, nz)
+                'k': self.kernel_shape,         # (ky, kx, 1, f)
+                'p': self.padding,
+                's': self.strides,              # (sy, sx)
+                'm': self.__get_output_shape(), # (my, mx, f)
+                'l': self.__get_lbuffer_len()   # l
             },
-            'kernel': {
-                'name': self.label + "_kernel",
-                'kernel': self.kernel
+            'weights': {
+                'name': self.label + "_weights",
+                'weights': self.weights
             }
         }
         return params

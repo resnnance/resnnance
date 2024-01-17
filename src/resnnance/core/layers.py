@@ -193,7 +193,7 @@ class Conv2D(Layer):
 
             for i, row in enumerate(kernel):
                 for j, col in enumerate(row):
-                    flat = np.concatenate(flat, kernel[i,j,:])
+                    flat = np.concatenate((flat, kernel[i,j,:]))
             kernels.append(flat)
 
         return kernels

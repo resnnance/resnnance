@@ -73,8 +73,11 @@ class Input(Layer):
 
 class Dense(Layer):
     templates = {
-        'core':    "hw/layers/dense.vhd",
-        'weights': "hw/layers/dense_weights.vhd"
+        'core':    "hw/layers/fc/fc_core.vhd",
+        'config':  "hw/layers/fc/fc_config.vhd",
+        'ctrl':    "hw/layers/fc/ctrl/fc_ctrl.vhd",
+        'npu_aux': "hw/layers/fc/npu/fc_npu_aux.vhd",
+        'npu':     "hw/layers/fc/npu/fc_npu.vhd"
     }
 
     def __init__(self, label, info=None):
@@ -105,14 +108,12 @@ class Dense(Layer):
 
     def get_template_params(self):
         params = {
-            'core': {
+            'core':    {'name': self.label},
+            'ctrl':    {'name': self.label},
+            'npu_aux': {'name': self.label},
+            'npu':     {'name': self.label},
+            'config': {
                 'name': self.label,
-                'weights': self.label + "_weights",
-                'logm': int(np.ceil(np.log2(self.weights.shape[0]))),
-                'logn': self.get_logn()
-            },
-            'weights': {
-                'name': self.label + "_weights",
                 'weights': self.weights,
                 'm': self.weights.shape[0],
                 'n': self.weights.shape[1]
@@ -122,8 +123,11 @@ class Dense(Layer):
 
 class Conv2D(Layer):
     templates = {
-        'core':   "hw/layers/conv2d.vhd",
-        'weights': "hw/layers/conv2d_weights.vhd"
+        'core':    "hw/layers/conv2D/conv2D_core.vhd",
+        'config':  "hw/layers/conv2D/conv2D_config.vhd",
+        'ctrl':    "hw/layers/conv2D/ctrl/conv2D_ctrl.vhd",
+        'npu_aux': "hw/layers/conv2D/npu/conv2D_npu_aux.vhd",
+        'npu':     "hw/layers/conv2D/npu/conv2D_npu.vhd"
     }
 
     def __init__(self, label, info=None):
@@ -139,14 +143,14 @@ class Conv2D(Layer):
             self.set_layer(info)
 
     def __get_output_shape(self):
-        ny, nx, nz    = self.input_shape
+        my, mx, mz    = self.input_shape
         ky, kx, kz, f = self.kernel_shape
         sy, sx        = self.strides
 
         if self.padding == 'valid':    # No padding
-            return (ny - ky + 1) // sy, (nx - kx + 1) // sx, f
+            return (my - ky + 1) // sy, (mx - kx + 1) // sx, f
         elif self.padding == 'same':   # Padding generates same sized output
-            return ny // sy, nx // sx, f
+            return my // sy, mx // sx, f
 
     def __get_inital_position(self):
         ky, kx, kz, f = self.kernel_shape
@@ -157,14 +161,14 @@ class Conv2D(Layer):
             return 0, 0
 
     def __get_lbuffer_len(self):
-        ny, nx, nz    = self.input_shape
+        my, mx, mz    = self.input_shape
         ky, kx, kz, f = self.kernel_shape
 
-        return ((ky - 1) * nx + kx) * nz
+        return ((ky - 1) * mx + kx) * mz
 
     def __get_synapses(self):
-        ny, nx, nz = self.input_shape
-        return ny * nx * nz
+        my, mx, mz = self.input_shape
+        return my * mx * mz
 
     def __flatten_zy(self):
         #
@@ -184,12 +188,11 @@ class Conv2D(Layer):
         #          \/
         #
         # [a00, b00, c00, a01, b01, c01, ... , a22, b22, c22]
-
         kernels = []
         ky, kx, kz, f = self.kernel_shape
 
         for kernel in self.weights:
-            flat = np.empty(ky * kx)
+            flat = np.empty(0)
 
             for i, row in enumerate(kernel):
                 for j, col in enumerate(row):
@@ -212,31 +215,25 @@ class Conv2D(Layer):
             return sum([len(kernel.flatten()) for kernel in self.weights])
 
     def get_logm(self):
-        ny, nx, nz = self.input_shape
-        return int(np.ceil(np.log2(ny * nx * nz)))
+        my, mx, mz = self.input_shape
+        return int(np.ceil(np.log2(my * mx * mz)))
 
     def get_logn(self):
-        my, mx, f = self.__get_output_shape()
-        return int(np.ceil(np.log2(my * mx * f)))
+        ny, nx, f = self.__get_output_shape()
+        return int(np.ceil(np.log2(ny * nx * f)))
 
     def get_template_params(self):
         params = {
-            'core': {
+            'core':    {'name': self.label},
+            'ctrl':    {'name': self.label},
+            'npu_aux': {'name': self.label},
+            'npu':     {'name': self.label},
+            'config': {
                 'name': self.label,
-                'weights': self.label + "_weights",
-                'logm': self.get_logm(),
-                'logn': self.get_logn(),
-                'syn': self.__get_synapses(),
-                'n': self.input_shape,          # (ny, nx, nz)
-                'k': self.kernel_shape,         # (ky, kx, 1, f)
-                'p': self.padding,
+                'm': self.input_shape,          # (my, mx, mz)
+                'n': self.__get_output_shape(), # (ny, nx, f)
+                'k': self.kernel_shape,         # (ky, kx, kz, f)
                 's': self.strides,              # (sy, sx)
-                'm': self.__get_output_shape(), # (my, mx, f)
-                'l': self.__get_lbuffer_len()   # l
-            },
-            'weights': {
-                'name': self.label + "_weights",
-                'k': self.kernel_shape,         # (ky, kx, 1, f)
                 'weights': self.__flatten_zy()
             }
         }

@@ -26,8 +26,12 @@ class Plotter(object):
             if not i == 0:
                 network.add_edge(model.layers[i-1].label, model.layers[i].label)
 
+        # Generate directories for subpath
+        if not os.path.exists(os.path.join(path, "doc")):
+            os.makedirs(os.path.join(path, "doc"))
+
         # Plot graph
-        self.__plot_network(network, path)
+        self.__plot_network(network, os.path.join(path, "doc"))
 
     def __plot_network(self, network, path=None):
 

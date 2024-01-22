@@ -90,19 +90,9 @@ class Builder():
 
     def __info_pooling(projection):
         """
-        Returns pooling layer info from a PyNN FromListConnector
+        Returns pooling layer info from a PyNN PoolConnector
         """
-        info = {}
-
-        # Input size
-        ny, nx = projection.info['input_size']
-        nz = projection.info['input_ch']
-        info['n'] = (ny, nx, nz)
-
-        # Stride and pool size
-        info['stride'] = projection.info['strides']
-        info['pool'] = projection.info['pool_size']
-
+        info = projection.info
         return info
 
     # PyNN connector to Resnnance layer conversion table

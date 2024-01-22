@@ -86,17 +86,17 @@ class Dense(Layer):
         else:
             raise ValueError('Wrong weight matrix shape')
 
-    def get_logn(self):
-        if self.weights is None:
-            return DEFAULT
-        else:
-            return int(np.ceil(np.log2(self.weights.shape[1])))
-
     def get_size(self):
         if self.weights is None:
             return DEFAULT
         else:
             return len(self.weights.flatten())
+
+    def get_logn(self):
+        if self.weights is None:
+            return DEFAULT
+        else:
+            return int(np.ceil(np.log2(self.weights.shape[1])))
 
     def get_template_params(self):
         params = {
@@ -223,56 +223,66 @@ class Conv2D(Layer):
             'config': {
                 'name': self.label,
                 'm': self.input_shape,          # (my, mx, mz)
-                'n': self.__get_output_shape(), # (ny, nx, f)
                 'k': self.kernel_shape,         # (ky, kx, kz, f)
-                's': self.strides,              # (sy, sx)
+                #'s': self.strides,              # (sy, sx)
+                'n': self.__get_output_shape(), # (ny, nx, f)
                 'weights': self.__flatten_zy()
             }
         }
         return params
 
+
 class Pooling(Layer):
-    templates = {
-        'core': "hw/layers/pooling.vhd"
-    }
+    templates = {}
+    #templates = {
+    #    'core':    "hw/layers/pool/pool_core.vhd",
+    #    'config':  "hw/layers/pool/pool_config.vhd",
+    #    'ctrl':    "hw/layers/pool/ctrl/pool_ctrl.vhd",
+    #    'npu_aux': "hw/layers/pool/npu/pool_npu_aux.vhd",
+    #    'npu':     "hw/layers/pool/npu/pool_npu.vhd"
+    #}
 
     def __init__(self, label, info=None):
         self.label = "layer_" + label
 
         if info is None:
-            self.n = None
-            self.stride = None
+            self.input_shape = None
             self.pool = None
         else:
             self.set_layer(info)
 
-    def set_layer(self, info):
-        self.n = info['n']              # Input dimensions (y,x,z)
-        self.stride = info['stride']    # Stride steps (y,x)
-        self.pool = info['pool']        # Pool size (y,x)
+    def __get_output_shape(self):
+        my, mx, mz    = self.input_shape
+        py, px        = self.pool
 
-    def get_weight(self):
+        return my // py, mx // px, mz
+
+    def __get_weight(self):
         return 1 / (self.pool[0] * self.pool[1])
 
+    def set_layer(self, info):
+        self.input_shape = info['input_shape']  # Input dimensions (y,x,z)
+        self.pool = info['pool_size']           # Pool size (y,x)
+
     def get_size(self):
-        if self.pool is None:
-            return DEFAULT
-        else:
-            return self.pool[0] * self.pool[1] 
+        return self.pool[0] * self.pool[1] 
 
     def get_logn(self):
-        if self.pool is None:
-            return DEFAULT
-        else:
-            return 1
+        ny, nx, mz = self.__get_output_shape()
+        return int(np.ceil(np.log2(ny * nx * mz)))
 
     def get_template_params(self):
         params = {
-            'core': {
+            'core':    {'name': self.label},
+            'ctrl':    {'name': self.label},
+            'npu_aux': {'name': self.label},
+            'npu':     {'name': self.label},
+            'config': {
                 'name': self.label,
-                'n': self.n,
-                'stride': self.stride,
-                'pool': self.pool
+                'm': self.input_shape,          # (my, mx, mz)
+                'p': self.pool,                 # (py, px)
+                'n': self.__get_output_shape(), # (ny, nx, mz)
+                'weight': self.__get_weight()
             }
         }
         return params

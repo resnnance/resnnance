@@ -33,7 +33,11 @@ class Builder():
             layer_info = Builder.__get_layer_info(incoming)
     
             # Create and add layer
-            layer = layer_class(population.label, layer_info)
+            if len(incoming) == 0:
+                layer = rsnn.Input(population.label, population.size)
+            else:
+                layer = layer_class(population.label, layer_info)
+
             self.simulator.model.add_layer(layer)
         
         # TODO check if sequential order is kept between projections and layers

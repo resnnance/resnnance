@@ -26,46 +26,38 @@ class Layer(object):
 
 class Input(Layer):
     templates = {
-        'core':    "hw/layers/input.vhd",
-        'weights': "hw/layers/input_weights.vhd"
+        'core': "hw/layers/input/poisson_core.vhd",
+        'aux':  "hw/layers/input/poisson_aux.vhd"
     }
 
     def __init__(self, label, info=None):
         self.label = "layer_" + label
 
         if info is None:
-            self.weights = None
+            self.n = None
         else:
             self.set_layer(info)
     
     def set_layer(self, info):
-        if info.ndim == 1:
-            self.weights = info     # Dense weight matrix
-        else:
-            raise ValueError('Wrong weight matrix shape')
+        self.n = info     # Neuron outputs
 
     def get_size(self):
-        if self.weights is None:
+        if self.n is None:
             return DEFAULT
         else:
-            return self.weights.shape[0]
+            return self.n
 
     def get_logn(self):
-        if self.weights is None:
+        if self.n is None:
             return DEFAULT
         else:
-            return int(np.ceil(np.log2(self.weights.shape[0])))
+            return int(np.ceil(np.log2(self.n)))
 
     def get_template_params(self):
         params = {
-            'core': {
+            'core': {'name': self.label},
+            'aux': {
                 'name': self.label,
-                'weights': self.label + "_weights",
-                'logn': self.get_logn()
-            },
-            'weights': {
-                'name': self.label + "_weights",
-                'weights': self.weights,
                 'n': self.get_size()
             }
         }

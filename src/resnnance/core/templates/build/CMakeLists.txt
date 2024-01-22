@@ -16,11 +16,9 @@ add_sources(
     src/simtick.vhd
     src/network.vhd
     {% for layer in layers %}
-    src/layers/{{ layer.label }}/{{ layer.label }}_fc.vhd
-    src/layers/{{ layer.label }}/{{ layer.label }}_fc_config.vhd
-    src/layers/{{ layer.label }}/{{ layer.label }}_fc_ctrl.vhd
-    src/layers/{{ layer.label }}/{{ layer.label }}_fc_npu.vhd
-    src/layers/{{ layer.label }}/{{ layer.label }}_fc_npu_aux.vhd
+    {% for template in layer.templates -%}
+    src/layers/{{ layer.label }}/{{ layer.label }}_{{ template }}.vhd
+    {% endfor -%}
     {%- endfor %}
 )
 

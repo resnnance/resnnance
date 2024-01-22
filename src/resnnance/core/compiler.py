@@ -47,7 +47,13 @@ class Compiler(object):
         # Connect layers and render network file
         params = {
             'name':   'network',
-            'layers': [{'label': layer.label, 'logn': layer.get_logn()} for layer in model.layers]
+            'layers': [
+                {
+                    'label': layer.label,
+                    'templates': list(layer.templates.keys()),
+                    'logn': layer.get_logn()
+                } for layer in model.layers
+            ]
         }
         self.__render_template(os.path.join("hw", "network.vhd"), params, os.path.join("src", "network.vhd"))
         

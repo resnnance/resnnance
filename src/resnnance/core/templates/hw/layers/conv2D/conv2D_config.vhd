@@ -4,10 +4,11 @@
 -- Convolutional 2D layer - Configuration package
 --
 -- params:
---      'name': self.label
---      'weights': self.weights,
---      'm': self.weights.shape[0],
---      'n': self.weights.shape[1]
+--      'name': self.label,
+--      'm': self.input_shape,
+--      'k': self.kernel_shape,
+--      'n': self.__get_output_shape(),
+--      'weights': self.__flatten_zy()
 ---
 
 library ieee;

@@ -233,14 +233,13 @@ class Conv2D(Layer):
 
 
 class Pooling(Layer):
-    templates = {}
-    #templates = {
-    #    'core':    "hw/layers/pool/pool_core.vhd",
-    #    'config':  "hw/layers/pool/pool_config.vhd",
-    #    'ctrl':    "hw/layers/pool/ctrl/pool_ctrl.vhd",
-    #    'npu_aux': "hw/layers/pool/npu/pool_npu_aux.vhd",
-    #    'npu':     "hw/layers/pool/npu/pool_npu.vhd"
-    #}
+    templates = {
+        'core':    "hw/layers/pool/pool_core.vhd",
+        'config':  "hw/layers/pool/pool_config.vhd",
+        'ctrl':    "hw/layers/pool/ctrl/pool_ctrl.vhd",
+        'npu_aux': "hw/layers/pool/npu/pool_npu_aux.vhd",
+        'npu':     "hw/layers/pool/npu/pool_npu.vhd"
+    }
 
     def __init__(self, label, info=None):
         self.label = "layer_" + label

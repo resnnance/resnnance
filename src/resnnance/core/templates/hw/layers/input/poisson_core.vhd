@@ -13,8 +13,8 @@ port (
     tick: in  std_logic;
 
     so:   out std_logic;
-    ado:  in  std_logic_vector(logn-1 downto 0);
-    eno:  in  std_logic
+    ado:  out std_logic_vector(logn-1 downto 0);
+    eno:  out std_logic
 );
 end entity;
 
@@ -23,12 +23,6 @@ architecture arch of {{ name }}_core is
     signal wra, rda: unsigned(logn-1 downto 0);
     signal wrd, rdd: unsigned(w-1 downto 0);
     signal wr,  rd:  std_logic;
-
-    type smem_t is array (0 to n-1) of std_logic;
-    signal smem: smem_t;
-    signal swra, srda: unsigned(logn-1 downto 0);
-    signal swrd, srdd: std_logic;
-    signal swr,  srd:  std_logic;
 
     --constant poly:     natural := 16#B8#;
     --constant poly_w:   natural := 8;
@@ -62,20 +56,6 @@ begin
     end process;
 
     ---
-    -- Spike memory
-    spikemem: process (clk)
-    begin
-        if rising_edge(clk) then
-            if swr = '1' then
-                smem(to_integer(swra)) <= swrd;
-            end if;
-            if srd = '1' then
-                srdd <= smem(to_integer(srda));
-            end if;
-        end if;
-    end process;
-
-    ---
     -- Registers
     reg: process (rst, clk)
     begin
@@ -94,7 +74,7 @@ begin
 
     ---
     -- Datapath
-    dp: process (rr, tick, rdd, rd, ado, eno)
+    dp: process (rr, tick, rdd, rd)
         function fibonacci(lr: std_logic_vector) return std_logic_vector is
             variable feedback: std_logic;
             variable ln: std_logic_vector(lr'range);
@@ -140,15 +120,9 @@ begin
         rda <= rr.addr;
         rd  <= '0';
 
-        -- Spike memory defaults
-        swra <= rr.saddr;
-        swrd <= '0';
-        swr  <= rr.rd;
-        srda <= unsigned(ado);
-        srd  <= eno;
-
-        -- Output
-        so <= srdd;
+        so <= '0';
+        ado <= std_logic_vector(rr.saddr);
+        eno <= rr.rd;
 
         -- Pseudo-pipeline
         rn.rd    <= rd;
@@ -185,7 +159,7 @@ begin
             --
             --if spike(rdd, unsigned(rr.lfsr), 7) then  -- 100 us
             if spike(rdd, unsigned(rr.lfsr), 4) then    -- 1 ms
-                swrd <= '1';
+                so <= '1';
             end if;
         end if;
     end process;

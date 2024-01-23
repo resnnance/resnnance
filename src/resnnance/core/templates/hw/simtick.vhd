@@ -40,17 +40,21 @@ begin
 
     ---
     -- Count
-    dl: process (n_next, n_reg)
+    dl: process (n_reg)
         variable n: unsigned(w-1 downto 0);
     begin
         n := n_reg + 1;
-        tick <= '0';
 
         if n >= uthresh then
             n_next <= (others => '0');
-            tick <= '1';
         else
             n_next <= n;
+        end if;
+
+        if n_reg = 1 then
+            tick <= '1';
+        else
+            tick <= '0';
         end if;
     end process;
 

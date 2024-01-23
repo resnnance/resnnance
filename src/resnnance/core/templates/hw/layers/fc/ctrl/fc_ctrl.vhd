@@ -135,7 +135,7 @@ begin
         -- Ctrl FSM - ado
         if rr.state = run or rr.state = rdo then
             enr <= '1';
-            if rr.ado < fc_m - 1 then
+            if rr.ado < fc_n - 1 then
                 rn.ado <= rr.ado + 1;
             else
                 rn.ado <= (others => '0');

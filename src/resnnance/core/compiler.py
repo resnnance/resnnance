@@ -46,7 +46,7 @@ class Compiler(object):
 
         # Connect layers and render network file
         params = {
-            'name':   'network',
+            'name': 'network',
             'layers': [
                 {
                     'label': layer.label,
@@ -56,9 +56,14 @@ class Compiler(object):
             ]
         }
         self.__render_template(os.path.join("hw", "network.vhd"), params, os.path.join("src", "network.vhd"))
+
+        # Render memory file
+        params['name'] = 'memory'
+        self.__render_template(os.path.join("hw", "memory.vhd"), params, os.path.join("src", "memory.vhd"))
         
         # Render build test list
         self.__render_template(os.path.join("build", "test", "CMakeLists.txt"), params, os.path.join("test", "CMakeLists.txt"))
+        self.__render_template(os.path.join("build", "test", "network_tb.vhd"), params, os.path.join("test", "network_tb.vhd"))
 
         # Render build list
         self.__render_template(os.path.join("build", "CMakeLists.txt"), params, "CMakeLists.txt")

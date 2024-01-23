@@ -4,7 +4,7 @@
 -- Fully-connected layer - Configuration package
 --
 -- params:
---      'name': self.label
+--      'name': self.label,
 --      'weights': self.weights,
 --      'm': self.weights.shape[0],
 --      'n': self.weights.shape[1]

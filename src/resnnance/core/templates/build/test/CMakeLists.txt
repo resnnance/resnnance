@@ -1,4 +1,4 @@
 
 add_test_sources(
-    #network_tb.vhd
+    network_tb.vhd
 )

@@ -11,6 +11,14 @@ architecture arch of network_tb is
     signal rst:  std_logic := '0';
     signal clk:  std_logic := '0';
     signal tick: std_logic;
+
+    {% with last = layers | last -%}
+    ---
+    -- Network output
+    signal  si: std_logic;
+    signal adi: std_logic_vector({{ last.logn }}-1 downto 0);
+    signal eni: std_logic;
+    {%- endwith %}
 begin
 
     ---
@@ -28,7 +36,8 @@ begin
     -- DUT
     dut: entity work.network
     port map (
-        rst => rst, clk => clk, tick => tick
+        rst => rst, clk => clk, tick => tick,
+        si => si, adi => adi, eni => eni
     );
 
     -- Testbench signals

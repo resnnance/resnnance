@@ -34,7 +34,6 @@ end entity;
 architecture arch of {{ name }}_core is
     signal sr:   std_logic_vector(0 to pool_p-1);
     signal adr:  std_logic_vector(pool_logn-1 downto 0);
-    signal wadr: std_logic_vector(pool_logn-1 downto 0);
     signal enr:  std_logic;
 begin
 
@@ -44,7 +43,7 @@ begin
     port map (
         rst => rst, clk => clk, tick => tick,
         si => si, adi => adi, eni => eni,
-        sr => sr, adr => adr, wadr => wadr, enr => enr
+        sr => sr, adr => adr, enr => enr
     );
 
     ---
@@ -52,7 +51,7 @@ begin
     pool_npu_inst: entity work.{{ name }}_npu
     port map (
         rst => rst, clk => clk,
-        sr => sr, adr => adr, wadr => wadr, enr => enr,
+        sr => sr, adr => adr, enr => enr,
         so => so, ado => ado, eno => eno
     );
 

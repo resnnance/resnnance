@@ -22,7 +22,6 @@ port (
 
     sr:   in  std_logic_vector(0 to pool_p-1);
     adr:  in  std_logic_vector(pool_logn-1 downto 0);
-    wadr: in  std_logic_vector(pool_logn-1 downto 0);
     enr:  in  std_logic;
 
     so:   out std_logic;
@@ -56,7 +55,6 @@ architecture arch of {{ name }}_npu is
     -- Pipeline
     type xp_t is array (0 to pool_p-1) of x_t;
     type ap_t is array (0 to pool_p-1) of natural range x_mem_t'range;
-    type wp_t is array (0 to pool_p-1) of natural range w_mem_t'range;
     type ep_t is array (0 to pool_p-1) of std_logic;
 
     type p_t is record
@@ -129,7 +127,7 @@ begin
     -- Datapath
     dp: process (
         pr,
-        sr, adr, wadr, enr,
+        sr, adr, enr,
         x_out, so_out, w_out
     )
     begin

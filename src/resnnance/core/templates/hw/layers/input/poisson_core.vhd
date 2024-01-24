@@ -19,7 +19,8 @@ port (
 end entity;
 
 architecture arch of {{ name }}_core is
-    signal mem: mem_t(0 to n-1) := numpy2vhd("mnist.txt", n);
+    --signal mem: mem_t(0 to n-1) := numpy2vhd("mnist.txt", n);
+    signal mem: mem_t(0 to n-1) := (others => (0 => '0', 1 => '0', others => '1'));
     signal wra, rda: unsigned(logn-1 downto 0);
     signal wrd, rdd: unsigned(w-1 downto 0);
     signal wr,  rd:  std_logic;

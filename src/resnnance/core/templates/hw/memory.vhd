@@ -4,8 +4,7 @@ use ieee.numeric_std.all;
 
 entity {{ name }} is
 port (
-    rst:  in  std_logic;
-    clk:  in  std_logic;
+    clk: in std_logic;
 
     {%- for layer in layers %}
 
@@ -20,12 +19,16 @@ port (
     -- Output
      so_{{ layer.label }}: in  std_logic;
     ado_{{ layer.label }}: in  std_logic_vector({{ layer.logn }}-1 downto 0);
-    {%- if not loop.last %}
     eno_{{ layer.label }}: in  std_logic;
-    {%- else %}
-    eno_{{ layer.label }}: in  std_logic
-    {%- endif %}
     {%- endfor %}
+
+    {% with last = layers | last -%}
+    ---
+    -- Network output
+     si: out std_logic;
+    adi: in  std_logic_vector({{ last.logn }}-1 downto 0);
+    eni: in  std_logic
+    {%- endwith %}
 );
 end {{ name }};
 
@@ -67,6 +70,10 @@ begin
             -- Write
             if eno_{{ last.label }} = '1' then
                 smem_{{ last.label }}(to_integer(unsigned(ado_{{ last.label }}))) <= so_{{ last.label }};
+            end if;
+            -- Read
+            if eni = '1' then
+                si <= smem_{{ last.label }}(to_integer(unsigned(adi)));
             end if;
         end if;
     end process;

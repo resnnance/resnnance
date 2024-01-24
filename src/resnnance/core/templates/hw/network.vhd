@@ -5,7 +5,15 @@ entity {{ name }} is
 port (
     rst:  in std_logic;
     clk:  in std_logic;
-    tick: in std_logic
+    tick: in std_logic;
+
+    {% with last = layers | last -%}
+    ---
+    -- Network output
+     si: out std_logic;
+    adi: in  std_logic_vector({{ last.logn }}-1 downto 0);
+    eni: in  std_logic
+    {%- endwith %}
 );
 end {{ name }};
 
@@ -47,7 +55,7 @@ begin
     -- Memory
     mem: entity work.memory
     port map (
-        rst => rst, clk => clk,
+        clk => clk,
         {%- for layer in layers %}
         
         ---
@@ -61,12 +69,9 @@ begin
         -- Output
          so_{{ layer.label }} =>  so_{{ layer.label }},
         ado_{{ layer.label }} => ado_{{ layer.label }},
-        {%- if not loop.last %}
         eno_{{ layer.label }} => eno_{{ layer.label }},
-        {%- else %}
-        eno_{{ layer.label }} => eno_{{ layer.label }}
-        {%- endif %}
         {%- endfor %}
+        si => si, adi => adi, eni => eni
     );
 
 end arch;

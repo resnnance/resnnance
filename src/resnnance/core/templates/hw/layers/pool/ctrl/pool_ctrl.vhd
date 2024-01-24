@@ -27,7 +27,6 @@ port (
 
     sr:   out std_logic_vector(0 to pool_p-1);
     adr:  out std_logic_vector(pool_logn-1 downto 0);
-    wadr: out std_logic_vector(pool_logn-1 downto 0);
     enr:  out std_logic
 );
 end entity;
@@ -51,8 +50,6 @@ architecture arch of {{ name }}_ctrl is
 
     constant pool_l: natural := ((pool_py - 1) * pool_mx + pool_px);
     signal ln, lr: std_logic_vector(0 to pool_l-1);
-
-    signal ad: std_logic_vector(pool_logn-1 downto 0);
 begin
 
     ---
@@ -169,11 +166,10 @@ begin
         sr <= taps(lr);
         if kernel_aligned(rr.x, rr.y) then
             -- TODO Add support for px, py != 2
-            ad <= std_logic_vector(get_adr(rr.xs, rr.ys));
+            adr <= std_logic_vector(get_adr(rr.xs, rr.ys));
         else
             adr <= (others => '0');
         end if;
-        wadr <= (others => '0');
         enr  <= '0';
 
         -- Ctrl FSM

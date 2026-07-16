@@ -86,9 +86,15 @@ class Dense(Layer):
         'npu':     "hw/layers/fc/npu/fc_npu.vhd"
     }
 
-    def __init__(self, label, alpha: int, info=None):
+    def __init__(
+        self, label, alpha: int,
+        weight_width: int = 16, scale_factor = 8
+        info=None
+    ):
         self.label = "layer_" + label
         self.alpha = int(alpha)
+        self.weight_width = int(weight_width)
+        self.scale_factor = int(scale_factor)
 
         if info is None:
             self.weights = None
@@ -126,7 +132,12 @@ class Dense(Layer):
         params = {
             'core':    {'name': self.label},
             'ctrl':    {'name': self.label},
-            'npu_aux': {'name': self.label, 'alpha': self.alpha},
+            'npu_aux': {
+                'name': self.label,
+                'alpha': self.alpha,
+                'w_w': self.weight_width,
+                'sfe': self.scale_factor_exp
+            },
             'npu':     {'name': self.label},
             'config': {
                 'name': self.label,

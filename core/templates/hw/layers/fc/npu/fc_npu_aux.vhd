@@ -19,8 +19,8 @@ package {{ name }}_npu_aux is
     ---
     -- Neuron model types
     subtype x_t is signed(15 downto 0);
-    subtype w_t is signed(15 downto 0);
-    constant sf: real := 2.0**12;
+    subtype w_t is signed({{ w_w }}-1 downto 0);
+    constant sf: real := {{ sf }}.0;
 
     ---
     -- Weight memory types

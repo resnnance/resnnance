@@ -88,7 +88,7 @@ class Dense(Layer):
 
     def __init__(
         self, label, alpha: int,
-        weight_width: int = 16, scale_factor = 8
+        weight_width: int = 16, scale_factor = 8,
         info=None
     ):
         self.label = "layer_" + label
@@ -136,7 +136,7 @@ class Dense(Layer):
                 'name': self.label,
                 'alpha': self.alpha,
                 'w_w': self.weight_width,
-                'sfe': self.scale_factor_exp
+                'sf': self.scale_factor
             },
             'npu':     {'name': self.label},
             'config': {
@@ -157,9 +157,14 @@ class Conv2D(Layer):
         'npu':     "hw/layers/conv2D/npu/conv2D_npu.vhd"
     }
 
-    def __init__(self, label, info=None):
+    def __init__(self, label,
+        weight_width: int = 16, scale_factor = 8,
+        info=None
+    ):
         self.label = "layer_" + label
-
+        self.weight_width = int(weight_width)
+        self.scale_factor = int(scale_factor)
+        
         if info is None:
             self.input_shape = None
             self.kernel_shape = None
@@ -256,7 +261,11 @@ class Conv2D(Layer):
         params = {
             'core':    {'name': self.label},
             'ctrl':    {'name': self.label},
-            'npu_aux': {'name': self.label},
+            'npu_aux': {
+                'name': self.label,
+                'w_w': self.weight_width,
+                'sf': self.scale_factor
+            },
             'npu':     {'name': self.label},
             'config': {
                 'name': self.label,

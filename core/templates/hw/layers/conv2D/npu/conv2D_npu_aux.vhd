@@ -110,7 +110,7 @@ package body {{ name }}_npu_aux is
     begin
         for f in 0 to conv2D_f-1 loop
             for i in 0 to conv2D_k-1 loop
-                w := to_signed(integer(weights(f)(i) * 2.0**7), 16);
+                w := to_signed(integer(weights(f)(i) * 2.0**7), {{ w_w }});
                 wg(i)(f) := w;
             end loop;
         end loop;

@@ -255,6 +255,7 @@ class Conv2D(Layer):
 
     def get_logn(self):
         ny, nx, f = self.__get_output_shape()
+        print(ny,nx,f)
         return int(np.ceil(np.log2(ny * nx * f)))
 
     def get_template_params(self):
@@ -315,6 +316,10 @@ class Pooling(Layer):
 
     def get_size(self):
         return self.pool[0] * self.pool[1]
+
+    def get_logm(self):
+        my, mx, mz = self.input_shape
+        return int(np.ceil(np.log2(my * mx * mz)))
 
     def get_logn(self):
         ny, nx, mz = self.__get_output_shape()
